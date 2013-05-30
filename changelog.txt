@@ -1,0 +1,15 @@
+esco-sympa-remote-V.0.5
+Support des groupes pedagogiques.
+=> Gestion d'un nouveau parametre le SIREN 
+=> Gestion de la recherche d'un groupe pedagogique dans la branche people
+
+esco-sympa-remote-V.0.4.b
+
+ParamsWrapper.class.php :
+Ajout de l'appel a L'ArgumentFiller pour remplacer les tokens dans les groupes fournis par l'utilisateur
+-- $group_found = GroupSearcher::search(ArgumentFiller::getFilledString($groupname,$tokens));
+
+SympaRemoteCore.class.php :
+Ajout de l'appel a strtolower
+-- $main_robot_name = $this->params_wrapper->getWrappedParameter(strtolower(SympaRemoteConstants::INPUT_RNE)).".".$this->config->sympa_main_domain;
+

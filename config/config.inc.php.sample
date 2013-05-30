@@ -1,0 +1,92 @@
+<?php
+/**
+ **********************************************************
+ * Fichier de configuration principal de ESCO-Sympa-remote
+ **********************************************************
+ * @Author: Thomas BIZOUERNE, GIP RECIA 2011
+ */
+
+/**** Niveau de log du logger (DEBUG, INFO, WARN, ERROR, FATAL, OFF) ****/
+$debug_level = "DEBUG";
+
+/**** Chemin vers sympa.pl ***/
+$sympa_bin_dir = "/home/sympa/bin/";
+
+/**** Methode de recuperation des parametres ****/
+/* Valeurs possibles
+ * "POST" : Recuperation des parametres seulement en POST
+ * "GET"  : Recuperation des parametres seulement en GET
+ * "BOTH" : Recuperation des parametres possibles via les 2 methodes (Permet de debugguer facilement).
+ *          Si des parametres sont trouves en GET et en POST, les POST sont prioritaires,
+ */
+$param_method = "BOTH";
+
+/*
+ * Ce parametre donne les scenario d'ecriture que Sympa-remote autorise
+ * (Sympa-remote peut creer une liste selon n'importe quel scenario d'ecriture
+ * connue par sympa, mais il est possible ici de limiter les scenarios autorises)
+ * Le scenario newsletter est certainement amplement suffisant pour une utilisation basique.
+ * (separer les scenario par des $, et mettre entre simple quotes ! et non double quotes)
+ */
+$authorized_send_scenario = 'newsletter';
+
+/*  Filtre qui sera utilise pour trouver dans l'annuaire LDAP le groupe contenant les proprietaires
+ * de toutes les listes.
+ * NB : Sympa-remote n'acceptera pas de creer la liste si ce groupe est vide, car Sympa veut obligatoirement
+ * un proprietaire au minimum.
+ * Ce filtre, tous comme les filtres pour les groupes d'editeurs, peut contenir des tokens a remplacer, et notamment l'UAI.
+ * Precision : la recherche LDAP se fait sur le CN du groupe, dans la branche group.
+ */
+$owners_group_filter = "*:admin:local:admin_*{UAI}";
+
+/*
+ * Domaine du robot de listes Sympa principal (configure dans /etc/sympa.conf via la
+ * directive "Domain" (Main Robot Hostname))
+ * par exemple :
+ */
+$sympa_main_domain = "########";
+
+/*****************************************************************************
+ * ACCES A LA BASE DE DONNEES DES MODELES DE LISTES
+ * sympa-remote permet seulement de creer des listes a partir de modeles
+ * autorises. Les modeles sont stockes en base de donnees
+ * Le schema de la base de donnee est fourni dans le repertoire 'schema'
+ *****************************************************************************/
+/**** Host ****/
+$db_host = "########";
+/**** Utilisateur ****/
+$db_user = "########";
+/**** Mot de passe ****/
+$db_pass = "########";
+/**** Nom de la base de donnees ****/
+$db_db = "########";
+
+/*****************************************************************************
+ * ACCES A L'ANNUAIRE LDAP
+ * sympa-remote a besoin d'acceder a la branche groupe du ldap, afin
+ * de chercher le groupe des proprietaires des listes (defini par le parametre
+ * owners_group_filter), et donc de valider son existance.
+ *****************************************************************************/
+
+/**** adresse de l'annuaire LDAP. ****/
+$ldap_host="########";     # Exemple : localhost, 192.168.1.1
+
+/**** port ****/
+$ldap_port="389";
+
+/**** identifiant et mot de passe ****/
+$ldap_login="########";
+$ldap_password="########";
+
+/**** chemin d'acces dans l'annuaire (= BaseDN) ****/
+$ldap_base_dn="########";
+
+/**** Complement de chemin oe sont listes les utilisateurs et les groupes ****/
+/**** Ce parametre est place devant le BaseDN lors des requetes. ****/
+$ldap_people_ou = "ou=people";
+$ldap_groups_ou = "ou=groups";
+
+/**** Champ contenant le nom du groupe dans la branche groups ****/
+$ldap_champ_nom_groupe = "cn";
+
+?>
