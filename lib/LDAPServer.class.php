@@ -11,8 +11,8 @@ class LDAPServer {
     # Le chemin vers le fichier de configuration du LDAP.
 	const config_file = "config/config.inc.php";
 
-	# Les données pour se connecter à l'annuaire LDAP
-	# Les champs login et password peuvent être laissés vides
+	# Les donnï¿½es pour se connecter ï¿½ l'annuaire LDAP
+	# Les champs login et password peuvent ï¿½tre laissï¿½s vides
 	# dans le cas d'une connexion anonyme.
 	private $host = "localhost";
 	private $port = "389";
@@ -22,22 +22,22 @@ class LDAPServer {
 	public $people_ou = "ou=people";
     public $groups_ou = "ou=groups";
 
-	# Les classes de l'entrée LDAP d'un utilisateur. Elles doivent
-	# être cohérentes avec les attributs utilisés.
+	# Les classes de l'entrï¿½e LDAP d'un utilisateur. Elles doivent
+	# ï¿½tre cohï¿½rentes avec les attributs utilisï¿½s.
 	//private $people_object_classes = array("top","person","inetOrgPerson");
 
 	private $champ_nom_groupe = "cn";
 
-	# Cet attribut contient la connexion à l'annuaire LDAP. Cela
-	# évite d'avoir à refaire plusieurs fois la connexion lors de
-	# l'exécution d'un même script faisant appel à plusieurs reprises
-	# à des requêtes vers l'annuaire.
+	# Cet attribut contient la connexion ï¿½ l'annuaire LDAP. Cela
+	# ï¿½vite d'avoir ï¿½ refaire plusieurs fois la connexion lors de
+	# l'exï¿½cution d'un mï¿½me script faisant appel ï¿½ plusieurs reprises
+	# ï¿½ des requï¿½tes vers l'annuaire.
 	public $ds = false;
 
 
 	public function __construct() {
-		# On charge la configuration et on établit la connexion si
-		# le serveur a été configuré.
+		# On charge la configuration et on ï¿½tablit la connexion si
+		# le serveur a ï¿½tï¿½ configurï¿½.
         $this->log = $GLOBALS['logger'];
 		if (self::is_setup()) {
 			$this->load_config();
@@ -77,39 +77,37 @@ class LDAPServer {
 	        $res = array();
 	        $res = ldap_get_entries($this->ds, $sr);
 	        if (!array_key_exists(0, $res)) {
+				$this->log->LogError("[LDAPServer (search)] Aucun groupe trouve (".$ldap_filter.")");
 	        	$groupname = $this->search_people($filtre);
-                 $this->log->LogError("[LDAPServer (search)] Aucun groupe trouve (".$ldap_filter.")");
-	        }
-            else if (!array_key_exists($this->champ_nom_groupe,$res[0])) {
-                $groupname = false;
-                $this->log->LogError("[LDAPServer (search)] resultat anormal, pas de champ ".$this->champ_nom_groupe." retourne (".$ldap_filter.")");
-            }
-            else if (!array_key_exists(0,$res[0][$this->champ_nom_groupe])) {
-                $groupname = false;
-                $this->log->LogError("[LDAPServer (search)] resultat anormal, pas de valeur dans ".$this->champ_nom_groupe." (".$ldap_filter.")");
-            }
-            else {
+	        } else if (!array_key_exists($this->champ_nom_groupe,$res[0])) {
+		        $groupname = false;
+		        $this->log->LogError("[LDAPServer (search)] resultat anormal, pas de champ ".$this->champ_nom_groupe." retourne (".$ldap_filter.")");
+            } else if (!array_key_exists(0,$res[0][$this->champ_nom_groupe])) {
+		        $groupname = false;
+		        $this->log->LogError("[LDAPServer (search)] resultat anormal, pas de valeur dans ".$this->champ_nom_groupe." (".$ldap_filter.")");
+            } else {
                 $groupname = $res[0][$this->champ_nom_groupe][0];
+				// LDAP Escape group before returning it.
+				$groupname = ArgumentFiller::ldap_escape($groupname);
             }
 	        return $groupname;
     }
 
-    # Permet de rechercher un groupe (par son cn) en donnant un filtre
-    # Attention : ce filtre ne doit retourner qu'un seul et unique groupe.
+    	# Permet de rechercher un groupe (par son cn) en donnant un filtre
+    	# Attention : ce filtre ne doit retourner qu'un seul et unique groupe.
  	public function search_people($filtre) {
- 	        $req = $filtre;
- 			$sr = ldap_search($this->ds, $this->people_ou.",".$this->base_dn,$req,array("cn"),0,1);
- 	        $res = array();
- 	        $res = ldap_get_entries($this->ds, $sr);
- 	        if (!array_key_exists(0, $res)) {
- 	            	$groupname = false;
-                 	$this->log->LogError("[LDAPServer (search)] Aucune personne trouve (".$filtre.")");
- 	        }
-            else {
-                 	$groupname = $filtre;
-            }	
- 	        return $groupname;
-    }
+		$req = $filtre;
+		$sr = ldap_search($this->ds, $this->people_ou.",".$this->base_dn,$req,array("isMemberOf"),0,1);
+		$res = array();
+		$res = ldap_get_entries($this->ds, $sr);
+		if (!array_key_exists(0, $res)) {
+		    $groupname = false;
+		 	$this->log->LogError("[LDAPServer (search)] Aucune personne trouve dans le groupe (".$filtre.")");
+		} else {
+			$groupname = $filtre;
+		}	
+		return $groupname;
+   	}
 
 
 
@@ -122,18 +120,18 @@ class LDAPServer {
 
 
 	public static function connect_ldap($_adresse,$_port,$_login,$_password) {
-		# Pour avoir du débug en log serveur, décommenter la ligne suivante.
+		# Pour avoir du dï¿½bug en log serveur, dï¿½commenter la ligne suivante.
 		#ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
 	    $ds = ldap_connect($_adresse, $_port);
 	    if($ds) {
 	       // On dit qu'on utilise LDAP V3, sinon la V2 par d?faut est utilis? et le bind ne passe pas.
 	       $norme = ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
-	       // Accès non anonyme
+	       // Accï¿½s non anonyme
 	       if ($_login != '') {
 	          // On tente un bind
 	          $b = ldap_bind($ds, $_login, $_password);
 	       } else {
-	          // Accès anonyme
+	          // Accï¿½s anonyme
 	          $b = ldap_bind($ds);
 	       }
 	       if ($b) {
@@ -150,7 +148,7 @@ class LDAPServer {
 		return file_exists(dirname(__FILE__)."/../".self::config_file);
 	}
 
-	# On récupère les données de configuration présentes dans le fichier
+	# On rï¿½cupï¿½re les donnï¿½es de configuration prï¿½sentes dans le fichier
 	# /secure/config_ldap.inc.php
 	private function load_config() {
 		$ldap_config = array();

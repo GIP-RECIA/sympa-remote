@@ -1,3 +1,10 @@
+esco-sympa-remote-V.0.5.c
+Les echapements LDAP des groupes se font dans le groupSearcher qui sait si oui ou non il faut echaper le groupe.
+
+esco-sympa-remote-V.0.5.b
+Modification de l'ArgumentFiller qui propose doranavant de nouvelles methodes pour echaper les requetes LDAP.
+Propose egalement une methode pour nettoyer les adresses mails des listes avant leur creation.
+
 esco-sympa-remote-V.0.5
 Support des groupes pedagogiques.
 => Gestion d'un nouveau parametre le SIREN 

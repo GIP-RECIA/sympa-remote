@@ -1,1 +1,1 @@
-esco-sympa-remote-V.0.5
+esco-sympa-remote-V.0.5.c

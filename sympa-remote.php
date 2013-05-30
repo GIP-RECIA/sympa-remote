@@ -5,10 +5,10 @@
  *
  * Sympa-Remote permet d'executer des commandes Sympa (via sympa/pl)
  * sur la machine locale.
- * Le but est de pouvoir créer des listes (dans une famille), à partir
- * de modèles. (ce qui n'est pas supporté par le webservice sympa)
+ * Le but est de pouvoir creer des listes (dans une famille), e partir
+ * de modeles. (ce qui n'est pas supporte par le webservice sympa)
  *
- * Les paramètres sont passés au script PHP par methode POST.
+ * Les parametres sont passes au script PHP par methode POST.
  *
  */
 

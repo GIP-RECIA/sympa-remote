@@ -18,7 +18,7 @@ class SympaRemoteConstants {
     const INPUT_RNE = "uai"; // Le RNE de l'etablissement concerne
     const INPUT_SIREN = "siren"; // Le SIREN de l'etablissement concerne
     const INPUT_WRITING_POLICY = "policy"; // La politique d'ecriture (qui a le droit)
-    const INPUT_EDITORS_ALIASES = "editors_aliases"; // Des editeurs prédéfinis (connus en base) qui peuvent etre fournis. (Si aucun n'est fourni, sympa-remote prendra les editeurs marques comme obligatoires en base)
+    const INPUT_EDITORS_ALIASES = "editors_aliases"; // Des editeurs prï¿½dï¿½finis (connus en base) qui peuvent etre fournis. (Si aucun n'est fourni, sympa-remote prendra les editeurs marques comme obligatoires en base)
     const INPUT_EDITORS_GROUPS = "editors_groups"; // Des groupes supplementaires, facultatifs, qui peuvent etre fournis.
 
 
@@ -28,7 +28,7 @@ class SympaRemoteConstants {
     const OPERATION_CREATION_LISTE = "CREATE";
 
     // Pour la politique d'ecriture (WRITING POLICY)
-    // Pour l'instant, on utilise qu'une seule politique d'écriture, toutes les personnes qui doivent pouvoir
+    // Pour l'instant, on utilise qu'une seule politique d'ï¿½criture, toutes les personnes qui doivent pouvoir
     // ecrire a la liste seront ajoutees aux editeurs/moderateurs de la liste.
     const POLITIQUE_EDITEURS_SEULS = "newsletter"; // Seuls les editeurs peuvent ecrire
 

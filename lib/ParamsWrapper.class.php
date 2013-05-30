@@ -123,10 +123,10 @@ class ParamsWrapper {
          * dans les chaines (proprietes et filtres de groupes)
          */
         $parametre_du_type = false;
-        // On fabrique le token {UAI} avec sa valeur, (il n'a pas besoin d'etre fourni par l'utilisateur, puisqu'il est fourni à part)
+        // On fabrique le token {UAI} avec sa valeur, (il n'a pas besoin d'etre fourni par l'utilisateur, puisqu'il est fourni ï¿½ part)
         $tokens = array(strtoupper(SympaRemoteConstants::INPUT_RNE) => strtoupper($this->input_params[SympaRemoteConstants::INPUT_RNE]),
-         		strtoupper(SympaRemoteConstants::INPUT_SIREN) => strtoupper($this->input_params[SympaRemoteConstants::INPUT_SIREN]));        
-
+        strtoupper(SympaRemoteConstants::INPUT_SIREN) => strtoupper($this->input_params[SympaRemoteConstants::INPUT_SIREN]));
+	
         // On ne traite le parametre de modele que si celui-ci est requis par le modele choisi
         if ($this->isListTypeNeedParameter($this->input_params[SympaRemoteConstants::INPUT_LIST_TYPE])) {
             if (array_key_exists(SympaRemoteConstants::INPUT_LIST_TYPE_PARAMETER, $this->input_params)) {
@@ -159,6 +159,7 @@ class ParamsWrapper {
         if ($parametre_du_type) {
             $listname = ArgumentFiller::getFilledString($listname, $tokens);
         }
+		$listname = ArgumentFiller::strip_string($listname);
         $this->output_params[XMLBuilder::XML_TAG_LISTNAME] = $listname;
         $this->log->LogDebug("ParamsWrapper : Parametre ".XMLBuilder::XML_TAG_LISTNAME." = $listname");
 
@@ -200,7 +201,7 @@ class ParamsWrapper {
                     // Pour chaque identifiant d'alias, on recupere la requete ldap associee et on la stocke dans le tableau
                     // On creer un tableau dont les identifiants des alias sont les cles du tableau
                     $request=$this->known_list_types->getEditorRequestWithId($id_request);
-                    $aliases[$id_request]=ArgumentFiller::getFilledString($request['ldapfilter'],$tokens);
+                    $aliases[$id_request]=ArgumentFiller::getEscapedFilledString($request['ldapfilter'],$tokens);
                 }
             }
         }
@@ -211,7 +212,7 @@ class ParamsWrapper {
         foreach($temp_mandatory_editors_alias as $id_request => $request) {
             // On ajoute tous les editeurs obligatoires qui n'ont pas ete fournis en parametres.
             if (!array_key_exists($id_request, $aliases)) {
-                $aliases[$id_request]=ArgumentFiller::getFilledString($request['ldapfilter'],$tokens);
+                $aliases[$id_request]=ArgumentFiller::getEscapedFilledString($request['ldapfilter'],$tokens);
             }
         }
         if (count($aliases)==0) {
@@ -223,7 +224,7 @@ class ParamsWrapper {
         $this->output_params[XMLBuilder::XML_TAG_EDITORS_FROM_REQUEST] = $aliases;
         $string="";
         foreach($aliases as $filter) {
-            $string = $string."\n=>".$filter;
+	    $string = $string."\n=>".$filter;
         }
         $this->log->LogDebug("ParamsWrapper : Parametre ".XMLBuilder::XML_TAG_EDITORS_FROM_REQUEST." = $string");
 
@@ -235,7 +236,7 @@ class ParamsWrapper {
             $user_groups = explode('$',$this->input_params[SympaRemoteConstants::INPUT_EDITORS_GROUPS]);
             if ($user_groups[0] != "") {
                 foreach($user_groups as $groupname) {
-                    $group_found = GroupSearcher::search(ArgumentFiller::getFilledString($groupname, $tokens));
+                    $group_found = GroupSearcher::search(ArgumentFiller::getEscapedFilledString($groupname, $tokens));
                     if ($group_found != false) {
                         array_push($editors_groups,$group_found);
                     }
@@ -260,7 +261,7 @@ class ParamsWrapper {
         // comme pour les groupes d'editeurs
         // NB : seul le token {RNE} est autorise pour le groupe des proprietaires
         $this->log->LogDebug("ParamsWrapper : Construction du parametre ".XMLBuilder::XML_TAG_OWNERS_GROUP);
-        $owners_group = GroupSearcher::search(ArgumentFiller::getFilledString($this->config->owners_group_filter, $tokens));
+        $owners_group = GroupSearcher::search(ArgumentFiller::getEscapedFilledString($this->config->owners_group_filter, $tokens));
         if ($owners_group == false) {
             $this->log->LogError("ParamsWrapper : Impossible de trouver un groupe de proprietaires avec le filtre\n".$this->config->owners_group_filter."\nVerifier la configuration de la propriete ".$owners_group_filter. " dans config.inc.php");
             throw new SympaRemoteBadConfigurationException("NO_OWNERS",1);
@@ -275,7 +276,7 @@ class ParamsWrapper {
         $this->log->LogDebug("ParamsWrapper : Construction du parametre ".XMLBuilder::XML_TAG_SUBSCRIBERS_GROUP);
         $subscribers_prop = $this->known_list_types->getModeleProperties($type_liste, ListTypes::ABONNES);
         if ($subscribers_prop != "") {
-            $subscribers_group = GroupSearcher::search(ArgumentFiller::getFilledString($subscribers_prop, $tokens));
+            $subscribers_group = GroupSearcher::search(ArgumentFiller::getEscapedFilledString($subscribers_prop, $tokens));
             if ($subscribers_group == false) {
                 $this->log->LogError("ParamsWrapper : Aucun groupe d'abonne n'a etre trouve avec le filtre '\n".$this->known_list_types->getModeleProperties($type_liste, ListTypes::ABONNES)."'\nChanger le filtre dans la base de donnees des modeles");
                 throw new SympaRemoteBadConfigurationException("NO_SUBSCRIBERS",1);
@@ -287,6 +288,7 @@ class ParamsWrapper {
             throw new SympaRemoteBadConfigurationException("NO_SUBSCRIBERS",1);
             exit(1);
         }
+
         $this->output_params[XMLBuilder::XML_TAG_SUBSCRIBERS_GROUP] = $subscribers_group;
         $this->log->LogDebug("ParamsWrapper : Parametre ".XMLBuilder::XML_TAG_SUBSCRIBERS_GROUP." = ".$subscribers_group);
 
@@ -294,7 +296,7 @@ class ParamsWrapper {
         $this->log->LogDebug("ParamsWrapper : Construction du parametre ".SympaRemoteConstants::INPUT_RNE);
         $this->output_params[SympaRemoteConstants::INPUT_RNE]=$this->input_params[SympaRemoteConstants::INPUT_RNE];
         $this->log->LogDebug("ParamsWrapper : Parametre ".SympaRemoteConstants::INPUT_RNE." = ".$this->input_params[SympaRemoteConstants::INPUT_RNE]);
- 
+
         // PARAMETRE SIREN
         $this->log->LogDebug("ParamsWrapper : Construction du parametre ".SympaRemoteConstants::INPUT_SIREN);
         $this->output_params[SympaRemoteConstants::INPUT_SIREN]=$this->input_params[SympaRemoteConstants::INPUT_SIREN];
