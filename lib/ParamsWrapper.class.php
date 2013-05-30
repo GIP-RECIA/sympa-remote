@@ -52,7 +52,7 @@ class ParamsWrapper {
                 $this->input_params = $_GET;
             }
         }
-        $this->log->LogDebug("ParamsWrapper : Params = ".implode('/',$this->input_params));
+        $this->log->LogDebug("ParamsWrapper : Params = " . print_r($this->input_params, true));
         $this->loadListTypes();
     }
 
@@ -60,47 +60,83 @@ class ParamsWrapper {
      * Verification des parametres d'entree du service
      */
     public function check() {
-        $this->log->LogDebug("ParamsWrapper : Verification des parametres d'entree");
+		$operation = $this->input_params[SympaRemoteConstants::INPUT_OPERATION];
+	
+		if ($operation == "CREATE" || $operation == "UPDATE") {
+			$this->checkCreateOrUpdateOperation();	
+		} else if ($operation == "CLOSE") {
+			$this->checkCloseOperation();	
+		} else {
+			$this->log->LogError("ParamsWrapper : Operation [$operation] not supported !");
+			throw new ParamsWrapperCheckException('OPERATION_NOT_SUPPORTED',3);
+            exit(1);
+		}
+    }
+
+    private function checkCloseOperation() {
+        $this->log->LogDebug("ParamsWrapper : Verification des parametres d'entree pour l'operation CLOSE...");
         if (!is_array($this->input_params)) {
             $this->log->LogError("NOT_ENOUGH_PARAMETERS");
             throw new ParamsWrapperCheckException('MISSING_PARAMETER(S)',1);
             exit(1);
         }
-        /*
-         * TEST DE PRESENCE DES PARAMETRES OBLIGATOIRES
-         */
-        $this->log->LogDebug("ParamsWrapper : Test de presence des parametres obligatoires");
-        $this->checkMissingParameter(SympaRemoteConstants::INPUT_OPERATION);
-        $this->checkMissingParameter(SympaRemoteConstants::INPUT_LIST_TYPE);
-        $this->checkMissingParameter(SympaRemoteConstants::INPUT_RNE);
-        $this->checkMissingParameter(SympaRemoteConstants::INPUT_WRITING_POLICY);
+	
+		/*
+	 	 * TEST DE PRESENCE DES PARAMETRES OBLIGATOIRES
+	 	 */
+		$this->log->LogDebug("ParamsWrapper : Test de presence des parametres obligatoires");
+		$this->checkMissingParameter(SympaRemoteConstants::INPUT_LIST_NAME_TO_CLOSE);
 
-        /*
-         * CONTROLE DE LA VALEUR DES PARAMETRES OBLIGATOIRES
-         */
-        $this->log->LogDebug("ParamsWrapper : Test des valeurs des parametres obligatoires");
-        $this->checkParameterValue(SympaRemoteConstants::INPUT_OPERATION);
-        $this->checkParameterValue(SympaRemoteConstants::INPUT_LIST_TYPE);
-        $this->checkParameterValue(SympaRemoteConstants::INPUT_WRITING_POLICY);
+		/*
+	 	 * CONTROLE DE LA VALEUR DES PARAMETRES OBLIGATOIRES
+		 */
+		$this->log->LogDebug("ParamsWrapper : Test des valeurs des parametres obligatoires");
+		$this->checkParameterValue(SympaRemoteConstants::INPUT_LIST_NAME_TO_CLOSE);
 
-        /*
-         * TEST DE PRESENCE DES PARAMETRES SPECIFIQUES A CERTAINES VALEURS
-         * ET TESTS DES VALEURS AUTORISEES
-         */
-        $this->log->LogDebug("ParamsWrapper : Test de presence des parametres specifiques");
-        if ($this->isListTypeNeedParameter($this->input_params[SympaRemoteConstants::INPUT_LIST_TYPE])) {
-            // Test de presence du parametre specifique a certains types de listes
-            $this->log->LogDebug("ParamsWrapper : le modele choisi necessite un parametre");
-            $this->checkMissingParameter(SympaRemoteConstants::INPUT_LIST_TYPE_PARAMETER);
+    }
+
+    private function checkCreateOrUpdateOperation() {
+        $this->log->LogDebug("ParamsWrapper : Verification des parametres d'entree pour l'operation CREATE or UPDATE...");
+        if (!is_array($this->input_params)) {
+            $this->log->LogError("NOT_ENOUGH_PARAMETERS");
+            throw new ParamsWrapperCheckException('MISSING_PARAMETER(S)',1);
+            exit(1);
         }
-        else {
-            $this->log->LogDebug("ParamsWrapper : le modele choisi ne necessite pas de parametre");
-        }
+	
+		/*
+		 * TEST DE PRESENCE DES PARAMETRES OBLIGATOIRES
+		 */
+		$this->checkMissingParameter(SympaRemoteConstants::INPUT_OPERATION);
+		$this->log->LogDebug("ParamsWrapper : Test de presence des parametres obligatoires");
+		$this->checkMissingParameter(SympaRemoteConstants::INPUT_LIST_TYPE);
+		$this->checkMissingParameter(SympaRemoteConstants::INPUT_RNE);
+		$this->checkMissingParameter(SympaRemoteConstants::INPUT_WRITING_POLICY);
 
-        // Si aucun alias d'editeur n'est fourni, sympa-remote va utiliser
-        // les requetes (alias) marquees comme MANDATORY pour le model correspondant (BD)
-        // Si certains sont fournis, on controle qu'ils sont bien connus
-        $this->checkParameterValue(SympaRemoteConstants::INPUT_EDITORS_ALIASES);
+		/*
+		 * CONTROLE DE LA VALEUR DES PARAMETRES OBLIGATOIRES
+		 */
+		$this->log->LogDebug("ParamsWrapper : Test des valeurs des parametres obligatoires");
+		$this->checkParameterValue(SympaRemoteConstants::INPUT_OPERATION);
+		$this->checkParameterValue(SympaRemoteConstants::INPUT_LIST_TYPE);
+		$this->checkParameterValue(SympaRemoteConstants::INPUT_WRITING_POLICY);
+
+		/*
+		 * TEST DE PRESENCE DES PARAMETRES SPECIFIQUES A CERTAINES VALEURS
+		 * ET TESTS DES VALEURS AUTORISEES
+		 */
+		$this->log->LogDebug("ParamsWrapper : Test de presence des parametres specifiques");
+		if ($this->isListTypeNeedParameter($this->input_params[SympaRemoteConstants::INPUT_LIST_TYPE])) {
+		    // Test de presence du parametre specifique a certains types de listes
+	 	   	$this->log->LogDebug("ParamsWrapper : le modele choisi necessite un parametre");
+		    $this->checkMissingParameter(SympaRemoteConstants::INPUT_LIST_TYPE_PARAMETER);
+		} else {
+	    	$this->log->LogDebug("ParamsWrapper : le modele choisi ne necessite pas de parametre");
+		}
+
+		// Si aucun alias d'editeur n'est fourni, sympa-remote va utiliser
+		// les requetes (alias) marquees comme MANDATORY pour le model correspondant (BD)
+		// Si certains sont fournis, on controle qu'ils sont bien connus
+		$this->checkParameterValue(SympaRemoteConstants::INPUT_EDITORS_ALIASES);
 
         // On ne verifie pas les groupes fournis.
         $this->log->LogDebug("ParamsWrapper : Verification des parametres d'entree OK");
@@ -111,8 +147,37 @@ class ParamsWrapper {
      * par l'executable de Sympa (sympa.pl)
      */
     public function wrap() {
-        $this->log->LogDebug("ParamsWrapper : Transformation des parametres pour sympa.pl");
         $output_params = array();
+		// Operation
+		$operation = $this->input_params[SympaRemoteConstants::INPUT_OPERATION];
+		$this->output_params[SympaRemoteConstants::INPUT_OPERATION] = $operation;
+	
+		if ($operation == "CREATE" || $operation == "UPDATE") {
+			$this->wrapCreateOrUpdateOperation();	
+		} else if ($operation == "CLOSE") {
+			$this->wrapCloseOperation();	
+		} else {
+			$this->log->LogError("ParamsWrapper : Operation [$operation] not supported !");
+			throw new ParamsWrapperCheckException('OPERATION_NOT_SUPPORTED',3);
+            exit(1);
+		}
+	
+    }
+
+    private function wrapCloseOperation() {
+        $this->log->LogDebug("ParamsWrapper : Transformation des parametres pour sympa.pl pour l'operation CLOSE...");
+        $output_params = array();
+
+		$this->output_params[SympaRemoteConstants::INPUT_LIST_NAME_TO_CLOSE] = $this->input_params[SympaRemoteConstants::INPUT_LIST_NAME_TO_CLOSE];
+    }
+
+    private function wrapCreateOrUpdateOperation() {
+        $this->log->LogDebug("ParamsWrapper : Transformation des parametres pour sympa.pl pour l'operation CREATE ou UPDATE...");
+        $output_params = array();
+
+		// Operation
+		$this->output_params[SympaRemoteConstants::INPUT_OPERATION] = $this->input_params[SympaRemoteConstants::INPUT_OPERATION];
+
         /*
          * Recuperation du modele correspondant au type de liste demande et preparation des parametres
          */
@@ -348,7 +413,8 @@ class ParamsWrapper {
             }
         }
         else if (strcmp($parameter,SympaRemoteConstants::INPUT_OPERATION) == 0) {
-            if (strcmp($this->input_params[SympaRemoteConstants::INPUT_OPERATION], SympaRemoteConstants::OPERATION_CREATION_LISTE) != 0 ) {
+            // MBD: ajout d'une operation => liste des operation est dorenavant un array
+	    	if (!in_array($this->input_params[SympaRemoteConstants::INPUT_OPERATION], SympaRemoteConstants::$OPERATION_CREATION_LISTE)) {
                 $this->log->LogError("ParamsWrapper : ".$this->input_params[SympaRemoteConstants::INPUT_OPERATION]." n'est pas une valeur correcte pour le parametre ".SympaRemoteConstants::INPUT_OPERATION);
                 throw new ParamsWrapperCheckException('OPERATION_NOT_SUPPORTED',3);
                 exit(1);

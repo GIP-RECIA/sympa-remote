@@ -35,8 +35,22 @@ class SympaRemoteCore {
         $xml_content = XMLBuilder::buildXML($this->params_wrapper->getWrappedParameters());
         $sympa_client = new SympaPLClient();
         $main_robot_name = strtolower($this->params_wrapper->getWrappedParameter(SympaRemoteConstants::INPUT_RNE)).".".$this->config->sympa_main_domain;
-        $sympa_client->createListWithXML($xml_content, $this->params_wrapper->getWrappedParameter(SympaPLClient::ARGUMENT_FAMILLE), $main_robot_name);
-    }
+
+		$operation = $this->params_wrapper->getWrappedParameter(SympaRemoteConstants::INPUT_OPERATION);
+		$this->log->LogDebug("Operation : " . $operation);
+		switch ($operation) {
+			case "CREATE":
+        		$sympa_client->createListWithXML($xml_content, $this->params_wrapper->getWrappedParameter(SympaPLClient::ARGUMENT_FAMILLE), $main_robot_name);
+				break;
+			case "UPDATE":
+        		$sympa_client->updateListWithXML($xml_content, $this->params_wrapper->getWrappedParameter(SympaPLClient::ARGUMENT_FAMILLE), $main_robot_name);
+				break;
+			case "CLOSE":
+				$listname = $this->params_wrapper->getWrappedParameter(SympaRemoteConstants::INPUT_LIST_NAME_TO_CLOSE);
+        		$sympa_client->closeList($listname);
+				break;
+		}
+    }		
 
 
 

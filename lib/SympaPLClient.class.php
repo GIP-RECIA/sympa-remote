@@ -18,6 +18,10 @@ class SympaPLClient {
     /* Balises du XML */
     // Argument permettant de specifier la famille dans laquelle ajouter la liste
     const ARGUMENT_FAMILLE = "--add_list";
+    const ARGUMENT_ADD_COMMAND = "--add_list";
+    const ARGUMENT_MODIFY_COMMAND = "--modify_list";
+    const ARGUMENT_CLOSE_COMMAND = "--close_list";
+
     const ARGUMENT_ROBOT = "--robot";
     const ARGUMENT_FICHIER_XML = "--input_file";
 
@@ -53,9 +57,9 @@ class SympaPLClient {
      * sont bien presents et recuperables dans la configuration.
      */
     private function check_required_parameters() {
-        $this->log->LogDebug("ListTypes : Verification de la config necessaire");
+        $this->log->LogDebug("SympaPLClient : Verification de la config necessaire");
         //ConfigChecker::raise_exception_if_param_not_defined("POLITIQUE_STRICTE");
-        $this->log->LogDebug("ListTypes : Verification de la config necessaire OK");
+        $this->log->LogDebug("SympaPLClient : Verification de la config necessaire OK");
     }
 
     /**
@@ -67,8 +71,42 @@ class SympaPLClient {
      */
     public function createListWithXML($xml_content, $family, $robot) {
         $chemin_xml = $this->createTemporaryXMLFile($xml_content);
-        $this->executeCreateList($family, $robot);
+        $this->executeSympaCommand($family, $robot, self::ARGUMENT_ADD_COMMAND, false);
         //unlink($chemin_xml);
+    }
+
+    /**
+     * Fonction permettant de creer la liste avec sympa.pl a partir du flux xml permettant
+     * l'instanciation de la liste
+     * @param <type> $xml_content le flux XML d'instanciation de la liste
+     * @param <type> $family la famille dans laquelle creer la liste
+     * @param <type> $robot le robot sympa sur lequel creer la liste
+     */
+    public function updateListWithXML($xml_content, $family, $robot) {
+        $chemin_xml = $this->createTemporaryXMLFile($xml_content);
+        $this->executeSympaCommand($family, $robot, self::ARGUMENT_MODIFY_COMMAND, true);
+        //unlink($chemin_xml);
+    }
+
+    /**
+     * Ferme une liste.
+     * @param <type> $listname le nom de la liste
+     */
+    public function closeList($listname) {
+		$CMD_PATH = $this->config->sympa_bin_dir;
+        $CMD = self::SYMPA_BIN;
+        $CMD_ARGS = self::ARGUMENT_CLOSE_COMMAND . " $listname";
+        //echo "$CMD_PATH$CMD $CMD_ARGS 2>&1";
+        $this->log->LogDebug("SympaPLClient : execution de la commande de cloture $CMD_ARGS");
+        $start = time();
+        //ob_start();
+        //echo "$CMD_PATH$CMD $CMD_ARGS 2>&1";
+        exec("$CMD_PATH$CMD $CMD_ARGS 2>&1", $output);
+        $end = time();
+        $duration = $end-$start;
+        $this->log->LogDebug("SympaPLClient : duree = $duration secondes");
+        $this->analyzeCloseOuput($output);
+
     }
 
     /**
@@ -85,17 +123,19 @@ class SympaPLClient {
     }
 
     /**
-     * Fonction permettant de lancer l'execution de la commande de creation de liste
+     * Fonction permettant de lancer l'execution d'une commande sympa.
      * (avec 'sympa.pl')
      * @param <type> $family
      * @param <type> $robot
+     * @param <type> $command the sympa command
+     * @param <type> $allowUpdate true if an update is authorized
      */
-    private function executeCreateList($family, $robot) {
+    private function executeSympaCommand($family, $robot, $command, $allowUpdate) {
         $CMD_PATH = $this->config->sympa_bin_dir;
         $CMD = self::SYMPA_BIN;
-        $CMD_ARGS = self::ARGUMENT_FAMILLE." $family ".self::ARGUMENT_ROBOT." $robot ".self::ARGUMENT_FICHIER_XML." ".$this->filename;
+        $CMD_ARGS = "$command $family ".self::ARGUMENT_ROBOT." $robot ".self::ARGUMENT_FICHIER_XML." ".$this->filename;
         //echo "$CMD_PATH$CMD $CMD_ARGS 2>&1";
-        $this->log->LogDebug("SympaPLClient : execution de la commande de creation $CMD_ARGS");
+        $this->log->LogDebug("SympaPLClient : execution de la commande sympa $CMD_ARGS");
         $start = time();
         //ob_start();
         //echo "$CMD_PATH$CMD $CMD_ARGS 2>&1";
@@ -103,7 +143,7 @@ class SympaPLClient {
         $end = time();
         $duration = $end-$start;
         $this->log->LogDebug("SympaPLClient : duree = $duration secondes");
-        $this->analyzeOuput($output);
+        $this->analyzeOuput($output, $allowUpdate);
     }
 
     /**
@@ -120,11 +160,11 @@ class SympaPLClient {
     private function executePerlCreateList($family, $robot) {
         $CMD_PATH = $this->config->sympa_bin_dir;
         $CMD = self::SYMPA_BIN;
-        $CMD_ARGS = self::ARGUMENT_FAMILLE." $family ".self::ARGUMENT_FICHIER_XML." ".$this->filename;
+        $CMD_ARGS = self::ARGUMENT_ADD_COMMAND." $family ".self::ARGUMENT_FICHIER_XML." ".$this->filename;
         //echo "$CMD_PATH$CMD $CMD_ARGS 2>&1";
         $this->log->LogDebug("SympaPLClient : execution de la commande de creation");
         $start = time();
-//        exec("$CMD_PATH$CMD $CMD_ARGS 2>&1", $output);
+		//exec("$CMD_PATH$CMD $CMD_ARGS 2>&1", $output);
         $perl = new Perl();
         $perl->eval("@ARGV=('--add_list','tous_les_personnels_etab','--input_file', '/tmp/sympaRemote_WzhSZb')");
         $this->log->LogDebug("SympaPLClient : eval OK");
@@ -146,38 +186,84 @@ class SympaPLClient {
      * Fonction permettant de deduire la reussite ou non de la commande de creation de liste
      * en fonction de la sortie recuperee
      * @param <type> $output la sortie de la commande
+     * @param <type> $allowUpdate if true analyze the output of a sympa update
      */
-    private function analyzeOuput($output) {
+    private function analyzeOuput($output, $allowUpdate) {
         $return = self::CODE_OK;
         if (!is_array($output)) {
             $this->log->LogWarn("SympaPLClient : une creation de liste a echouee (output non tableau)");
             throw new SympaPLClientListCreationFailedException("ERROR_CREATING_LIST",1);
             exit(1);
         }
-        $out = implode("", $output);
-        if (!(strstr($out, "err admin::install_aliases() admin::install_aliases : Aliases installed successfully") != false)) {
-            // La liste n'existait pas, aucune erreur, elle a ete cree
+	
+		$out = implode("", $output);
 
-            if (strstr($out, "some alias already exist") != false) {
-                // La liste existait deja... sympa l'a mise a jour, les alias existaient deja.
-                $this->log->LogWarn("SympaPLClient : une creation de liste a reussie, mais les alias existaient deja (details a suivre)");
-                foreach ($output as $line) {
-                    $this->log->LogWarn("SympaPLClient : $line\n");
-                }
-                throw new SympaPLClientListAlreadyExistsException("LIST_ALREADY_EXISTS",1);
-                exit(1);
-            }
-            else {
-                $this->log->LogError("SympaPLClient : une creation de liste a echouee (details a suivre)\n");
-                foreach ($output as $line) {
-                    $this->log->LogError("SympaPLClient : $line\n");
-                }
-                throw new SympaPLClientListCreationFailedException("ERROR_CREATING_LIST",1);
-                exit(1);
-            }
+		if ($allowUpdate) {
+			if (!(strstr($out, "list has been modified.") != false)) {
+				//The list was not modified
+
+				$this->log->LogWarn("SympaPLClient : une modification de liste a échouée ! \n");
+				foreach ($output as $line) {
+			    	$this->log->LogWarn("SympaPLClient : $line\n");
+				}
+			
+				throw new PhpException("ERROR_UPDATING_LIST",1);
+	        	exit(1);
+			}
+		} else {
+			if (!(strstr($out, "err admin::install_aliases() admin::install_aliases : Aliases installed successfully") != false)) {
+		    	// La liste n'existait pas, aucune erreur, elle a ete cree
+
+		    	if (strstr($out, "some alias already exist") != false) {
+					// La liste existait deja... sympa l'a mise a jour, les alias existaient deja.
+					$this->log->LogWarn("SympaPLClient : une creation de liste a reussie, mais les alias existaient deja (details a suivre)");
+					foreach ($output as $line) {
+			    		$this->log->LogWarn("SympaPLClient : $line\n");
+					}
+					throw new SympaPLClientListAlreadyExistsException("LIST_ALREADY_EXISTS",1);
+					exit(1);
+		    	} else {
+					$this->log->LogError("SympaPLClient : une creation de liste a echouee (details a suivre)\n");
+					foreach ($output as $line) {
+			    		$this->log->LogError("SympaPLClient : $line\n");
+					}
+					throw new SympaPLClientListCreationFailedException("ERROR_CREATING_LIST",1);
+					exit(1);
+		    	}
+	    	}
+		}
+	}
+
+    /**
+     * Fonction permettant de deduire la reussite ou non de la commande de fermeture de liste
+     * en fonction de la sortie recuperee
+     * @param <type> $output la sortie de la commande
+     */
+    private function analyzeCloseOuput($output) {
+        if (!is_array($output)) {
+            $this->log->LogWarn("SympaPLClient : une fermeture de liste a echouee (output non tableau)");
+            throw new PhpException("ERROR_CLOSING_LIST",1);
+            exit(1);
         }
-    }
 
+		$out = implode("", $output);
+		if (!(strstr($out, "has been closed, aliases have been removed") != false)) {
+			//The list was not modified
+
+			$this->log->LogWarn("SympaPLClient : une fermeture de liste a échouée ! \n");
+			foreach ($output as $line) {
+		    	$this->log->LogWarn("SympaPLClient : $line\n");
+			}
+		
+			throw new PhpException("ERROR_CLOSING_LIST",1);
+			exit(1);
+		}
+		$this->log->LogDebug("SympaPLClient : ---------- Retour de sympa.pl ---------- \n");
+		foreach ($output as $line) {
+	    	$this->log->LogDebug("SympaPLClient : $line\n");
+		}
+		$this->log->LogDebug("SympaPLClient : ---------- Retour de sympa.pl ---------- \n");
+    }
 }
 
 ?>
