@@ -57,7 +57,7 @@ class Config {
      */
     public function get_array_value($confKey, $index = "Default") {
 	$available_settings = get_class_vars(get_class($this));
-	$value = $available_settings[$confKey];	
+	$value = $this->$confKey;	
 	if (is_array($value)) {
 	    if (empty($value)) {
 		throw new Exception("Config Array is empty for key " . $confKey . " !", 1);

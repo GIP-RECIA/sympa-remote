@@ -88,7 +88,7 @@ class SympaRemoteCore {
         else if(strcasecmp("OFF", $this->config->debug_level) == 0) {
             $debug_const = KLogger::OFF;
         }
-        $this->log = new KLogger ( "/var/log/sympa-remote/sympa-remote.log" , $debug_const );
+        $this->log = new KLogger ( $this->config->log_file , $debug_const );
         $GLOBALS['logger'] = $this->log;
         $this->check_conf();
         $this->log->LogDebug("Init...OK");

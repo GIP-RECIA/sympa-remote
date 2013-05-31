@@ -11,7 +11,7 @@
  */
 
 // Initialisation du Logger
-$log = new KLogger ( "./testListTypes.log" , KLogger::DEBUG );
+$log = new KLogger ( "/tmp/testListTypes.log" , KLogger::DEBUG );
 $GLOBALS['logger'] = $log;
 
 // Test getter

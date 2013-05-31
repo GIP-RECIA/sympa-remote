@@ -10,7 +10,7 @@
  */
 
 // Initialisation du Logger
-$log = new KLogger ( "./testLdapGroupSearcher.log" , KLogger::DEBUG );
+$log = new KLogger ( "/tmp/testLdapGroupSearcher.log" , KLogger::DEBUG );
 $GLOBALS['logger'] = $log;
 
 // Test getter

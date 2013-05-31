@@ -130,10 +130,10 @@ class ListTypes {
 		$user = $this->config->get_array_value("db_user", $dbIndex);
 		$pass = $this->config->get_array_value("db_pass", $dbIndex);
 		$db = $this->config->get_array_value("db_db", $dbIndex);
-
+		$this->log->LogDebug("ListTypes : database connexion informations are: host: $host ; user: $user ; db: $db");
         $con = mysql_connect($host, $user, $pass);
         if ($con == false) {
-            $this->log->LogError("ListTypes : Impossible de se connecter a la base des modeles de listes".mysql_error());
+            $this->log->LogError("ListTypes : Impossible de se connecter a la base des modeles de listes ".mysql_error());
             throw new ListTypesNoModelsFoundException("can't connect to database",2);
             exit(1);
         }

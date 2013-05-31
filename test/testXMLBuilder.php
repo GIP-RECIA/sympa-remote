@@ -10,7 +10,7 @@
  */
 
 // Initialisation du Logger
-$log = new KLogger ( "./testXMLBuilder.log" , KLogger::DEBUG );
+$log = new KLogger ( "/tmp/testXMLBuilder.log" , KLogger::DEBUG );
 $GLOBALS['logger'] = $log;
 
 // Test getter

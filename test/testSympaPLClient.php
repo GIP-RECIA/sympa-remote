@@ -10,7 +10,7 @@
  */
 
 // Initialisation du Logger
-$log = new KLogger ( "./testSympaPLClient.log" , KLogger::DEBUG );
+$log = new KLogger ( "/tmp/testSympaPLClient.log" , KLogger::DEBUG );
 $GLOBALS['logger'] = $log;
 
 // Test getter

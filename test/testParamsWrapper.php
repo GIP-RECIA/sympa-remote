@@ -10,7 +10,7 @@
  */
 
 // Initialisation du Logger
-$log = new KLogger ( "./testParamsWrapper.log" , KLogger::DEBUG );
+$log = new KLogger ( "/tmp/testParamsWrapper.log" , KLogger::DEBUG );
 $GLOBALS['logger'] = $log;
 
 // Test getter
