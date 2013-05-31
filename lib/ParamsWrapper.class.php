@@ -246,7 +246,7 @@ class ParamsWrapper {
 
         // PARAMETRE 'DESCRIPTION'
         $this->log->LogDebug("ParamsWrapper : Construction du parametre ".XMLBuilder::XML_TAG_DESCRIPTION);
-        $description = $this->known_list_types->getModeleProperties($type_liste, ListTypes::DESC), $dbIndex;
+        $description = $this->known_list_types->getModeleProperties($type_liste, ListTypes::DESC, $dbIndex);
         if ($parametre_du_type) {
             $description = ArgumentFiller::getFilledString($description, $tokens);
         }
