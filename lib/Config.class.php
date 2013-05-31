@@ -44,7 +44,7 @@ class Config {
      */
     public function __construct() {
         # On charge la configuration et on �tablit la connexion si
-        # le serveur a �t� configur�.
+        # le serveur a ete configure.
         if (self::is_setup()) {
             $this->load_config();
         }
@@ -52,25 +52,27 @@ class Config {
 
     /**
      * Permet de recupere une valeur de configuration possiblement contenu dans un array.
-     * @return <type> la valeur a la position $index dans l'array ou bien $object si $object n'est pas un array.
+     * Retourne la valeur a la position $index dans l'array ou bien $object si $object n'est pas un array.
+     * @return <type> String
      */
-    public static function get_array_value($confVal, $index = "Default") {
-	$value = $confVal;	
-	if (is_array($confVal)) {
-	    if (empty($confVal)) {
+    public static function get_array_value($confKey, $index = "Default") {
+	$value = $this->$confKey;	
+	if (is_array($value)) {
+	    if (empty($value)) {
 		throw new Exception("Config Array is empty !",1);
             	exit(1);
 	    }
 
 	    // If config value is an array
-	    if (is_set($confVal[$index])) {
+	    if (is_set($value[$index])) {
 		// If the index is present in the array
-	    	$value = $confVal[$index];
+	    	$value = $value[$index];
 	    } else {
 		// Index does not exist in array => default value is the first
-		$value = reset($confVal);
+		$value = reset($value);
 	    }
 	}
+
         return $value;
     }
 
