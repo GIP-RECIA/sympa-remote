@@ -30,8 +30,8 @@ try {
     $types->getModeleProperties('tous_personnels', ListTypes::FAMILLE, "cfa");
     $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_OBLIGATOIRES, "cfa");
     $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_COCHES, "cfa");
-    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_NON_COCHES, "Default"));
-    $types->getModeleProperties('tous_personnels', ListTypes::ABONNES, "Default"));
+    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_NON_COCHES, "Default");
+    $types->getModeleProperties('tous_personnels', ListTypes::ABONNES, "Default");
 }
 catch(Exception $e) {
     $log->LogError("Test echoue : Exception inconnue : ".$e);
