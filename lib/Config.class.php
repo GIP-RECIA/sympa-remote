@@ -55,7 +55,7 @@ class Config {
      * Retourne la valeur a la position $index dans l'array ou bien $object si $object n'est pas un array.
      * @return <type> String
      */
-    public static function get_array_value($confKey, $index = "Default") {
+    public function get_array_value($confKey, $index = "Default") {
 	$value = $this->$confKey;	
 	if (is_array($value)) {
 	    if (empty($value)) {
