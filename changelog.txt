@@ -1,3 +1,6 @@
+esco-sympa-remote-V0.7
+Configuration de multiple base de données possible : choix à la demande
+
 esco-sympa-remote-V0.6
 Apporte des modifications pour supporter des opérations Sympa de manière plus générique,
 notamenent la possiblité de cloturer une liste.

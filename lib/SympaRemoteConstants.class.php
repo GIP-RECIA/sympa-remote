@@ -21,7 +21,7 @@ class SympaRemoteConstants {
     const INPUT_EDITORS_ALIASES = "editors_aliases"; // Des editeurs predefinis (connus en base) qui peuvent etre fournis. (Si aucun n'est fourni, sympa-remote prendra les editeurs marques comme obligatoires en base)
     const INPUT_LIST_NAME_TO_CLOSE = "listname"; // Le nom de la liste que l'on souhaite fermer
     const INPUT_EDITORS_GROUPS = "editors_groups"; // Des groupes supplementaires, facultatifs, qui peuvent etre fournis.
-
+    const INPUT_DATABASE_ID = "databaseId"; // The Id of the database to connect to
 
     // Valeurs possibles pour les parametres d'entree de sympa-remote
 

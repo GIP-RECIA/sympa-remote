@@ -42,10 +42,10 @@ class ListTypes {
     /**
      * @Constructor Constructeur de la classe ListTypes
      */
-    public function __construct() {
+    public function __construct($dbIndex) {
         $this->log = $GLOBALS['logger'];
         $this->config = $GLOBALS['config'];
-        $this->load_list_types();
+        $this->load_list_types($dbIndex);
     }
 
  
@@ -53,11 +53,11 @@ class ListTypes {
      * Fonction permettant de charger depuis la base de donnees les modeles de listes
      * que sympa-remote va etre capable de creer
      */
-    private function load_list_types() {
+    private function load_list_types($dbIndex) {
         $this->log->LogDebug("ListTypes : Chargement des types de listes connus");
         $nb_models = 0;
         $this->modeles = array();
-        $con = $this->connect_to_db();
+        $con = $this->connect_to_db($dbIndex);
         // On recupere les modeles de listes
         $sql = "SELECT * FROM model";
         if (!$req = mysql_query($sql,$con)) {
@@ -125,23 +125,28 @@ class ListTypes {
      * Connexion a la base de donnees
      * @return <type>
      */
-    private function connect_to_db() {
-        $con = mysql_connect($this->config->db_host, $this->config->db_user, $this->config->db_pass);
+    private function connect_to_db($dbIndex) {
+	    $host = Config::get_array_value($dbIndex, $this->config->db_host);
+		$user = Config::get_array_value($dbIndex, $this->config->db_user);
+		$pass = Config::get_array_value($dbIndex, $this->config->db_pass);
+		$db = Config::get_array_value($dbIndex, $this->config->db_db);
+
+        $con = mysql_connect($host, $user, $pass);
         if ($con == false) {
             $this->log->LogError("ListTypes : Impossible de se connecter a la base des modeles de listes".mysql_error());
             throw new ListTypesNoModelsFoundException("can't connect to database",2);
             exit(1);
         }
         if (!mysql_select_db($this->config->db_db,$con)) {
-            $this->log->LogError("ListTypes : Impossible de trouver la base ".$this->config->db_db);
-            throw new ListTypesNoModelsFoundException("No database ".$this->config->db_db,2);
+            $this->log->LogError("ListTypes : Impossible de trouver la base ".$db;
+            throw new ListTypesNoModelsFoundException("No database ".$db, 2);
             exit(1);
         }
         return $con;
     }
 
     /**
-     * Fonction permettant de recuperer la requete préparée ayant pour identifiant l'identifiant fourni.
+     * Fonction permettant de recuperer la requete prï¿½parï¿½e ayant pour identifiant l'identifiant fourni.
      * retourne la requete dans un tableau contenant une cle "display_name" et une cle "ldapfilter".
      * @param <type> $id_request l'identifiant de requete
      */

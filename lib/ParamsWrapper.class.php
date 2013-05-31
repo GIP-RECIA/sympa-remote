@@ -60,17 +60,17 @@ class ParamsWrapper {
      * Verification des parametres d'entree du service
      */
     public function check() {
-		$operation = $this->input_params[SympaRemoteConstants::INPUT_OPERATION];
-	
-		if ($operation == "CREATE" || $operation == "UPDATE") {
-			$this->checkCreateOrUpdateOperation();	
-		} else if ($operation == "CLOSE") {
-			$this->checkCloseOperation();	
-		} else {
-			$this->log->LogError("ParamsWrapper : Operation [$operation] not supported !");
-			throw new ParamsWrapperCheckException('OPERATION_NOT_SUPPORTED',3);
-            exit(1);
-		}
+	$operation = $this->input_params[SympaRemoteConstants::INPUT_OPERATION];
+
+	if ($operation == "CREATE" || $operation == "UPDATE") {
+	    $this->checkCreateOrUpdateOperation();
+	} else if ($operation == "CLOSE") {
+	    $this->checkCloseOperation();
+	} else {
+	    $this->log->LogError("ParamsWrapper : Operation [$operation] not supported !");
+	    throw new ParamsWrapperCheckException('OPERATION_NOT_SUPPORTED',3);
+    	exit(1);
+	}
     }
 
     private function checkCloseOperation() {
@@ -82,13 +82,13 @@ class ParamsWrapper {
         }
 	
 		/*
-	 	 * TEST DE PRESENCE DES PARAMETRES OBLIGATOIRES
-	 	 */
+ 		 * TEST DE PRESENCE DES PARAMETRES OBLIGATOIRES
+ 		 */
 		$this->log->LogDebug("ParamsWrapper : Test de presence des parametres obligatoires");
 		$this->checkMissingParameter(SympaRemoteConstants::INPUT_LIST_NAME_TO_CLOSE);
 
 		/*
-	 	 * CONTROLE DE LA VALEUR DES PARAMETRES OBLIGATOIRES
+ 		 * CONTROLE DE LA VALEUR DES PARAMETRES OBLIGATOIRES
 		 */
 		$this->log->LogDebug("ParamsWrapper : Test des valeurs des parametres obligatoires");
 		$this->checkParameterValue(SympaRemoteConstants::INPUT_LIST_NAME_TO_CLOSE);
@@ -127,10 +127,10 @@ class ParamsWrapper {
 		$this->log->LogDebug("ParamsWrapper : Test de presence des parametres specifiques");
 		if ($this->isListTypeNeedParameter($this->input_params[SympaRemoteConstants::INPUT_LIST_TYPE])) {
 		    // Test de presence du parametre specifique a certains types de listes
-	 	   	$this->log->LogDebug("ParamsWrapper : le modele choisi necessite un parametre");
+ 		    $this->log->LogDebug("ParamsWrapper : le modele choisi necessite un parametre");
 		    $this->checkMissingParameter(SympaRemoteConstants::INPUT_LIST_TYPE_PARAMETER);
 		} else {
-	    	$this->log->LogDebug("ParamsWrapper : le modele choisi ne necessite pas de parametre");
+    		$this->log->LogDebug("ParamsWrapper : le modele choisi ne necessite pas de parametre");
 		}
 
 		// Si aucun alias d'editeur n'est fourni, sympa-remote va utiliser
@@ -138,8 +138,8 @@ class ParamsWrapper {
 		// Si certains sont fournis, on controle qu'ils sont bien connus
 		$this->checkParameterValue(SympaRemoteConstants::INPUT_EDITORS_ALIASES);
 
-        // On ne verifie pas les groupes fournis.
-        $this->log->LogDebug("ParamsWrapper : Verification des parametres d'entree OK");
+    	// On ne verifie pas les groupes fournis.
+    	$this->log->LogDebug("ParamsWrapper : Verification des parametres d'entree OK");
     }
 
     /**
@@ -151,15 +151,15 @@ class ParamsWrapper {
 		// Operation
 		$operation = $this->input_params[SympaRemoteConstants::INPUT_OPERATION];
 		$this->output_params[SympaRemoteConstants::INPUT_OPERATION] = $operation;
-	
+
 		if ($operation == "CREATE" || $operation == "UPDATE") {
-			$this->wrapCreateOrUpdateOperation();	
+	    	$this->wrapCreateOrUpdateOperation();	
 		} else if ($operation == "CLOSE") {
-			$this->wrapCloseOperation();	
+	    	$this->wrapCloseOperation();	
 		} else {
-			$this->log->LogError("ParamsWrapper : Operation [$operation] not supported !");
-			throw new ParamsWrapperCheckException('OPERATION_NOT_SUPPORTED',3);
-            exit(1);
+	    	$this->log->LogError("ParamsWrapper : Operation [$operation] not supported !");
+	    	throw new ParamsWrapperCheckException('OPERATION_NOT_SUPPORTED',3);
+    	   	exit(1);
 		}
 	
     }
@@ -174,9 +174,6 @@ class ParamsWrapper {
     private function wrapCreateOrUpdateOperation() {
         $this->log->LogDebug("ParamsWrapper : Transformation des parametres pour sympa.pl pour l'operation CREATE ou UPDATE...");
         $output_params = array();
-
-		// Operation
-		$this->output_params[SympaRemoteConstants::INPUT_OPERATION] = $this->input_params[SympaRemoteConstants::INPUT_OPERATION];
 
         /*
          * Recuperation du modele correspondant au type de liste demande et preparation des parametres
@@ -487,7 +484,8 @@ class ParamsWrapper {
          * Chargement des types de listes possibles
          */
         try {
-            $this->known_list_types = new ListTypes();
+    	    $databseId = $this->input_params[SympaRemoteConstants::INPUT_DATABASE_ID];
+            $this->known_list_types = new ListTypes($databseId);
         }
         catch(ListTypesDirectoryNotFoundException $e) {
             $this->log->LogError("ParamsWrapper : BAD CONFIGURATION \n$e");

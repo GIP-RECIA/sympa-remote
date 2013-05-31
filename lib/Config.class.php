@@ -43,11 +43,35 @@ class Config {
      * Constructeur
      */
     public function __construct() {
-        # On charge la configuration et on établit la connexion si
-        # le serveur a été configuré.
+        # On charge la configuration et on ï¿½tablit la connexion si
+        # le serveur a ï¿½tï¿½ configurï¿½.
         if (self::is_setup()) {
             $this->load_config();
         }
+    }
+
+    /**
+     * Permet de recupere une valeur de configuration possiblement contenu dans un array.
+     * @return <type> la valeur a la position $index dans l'array ou bien $object si $object n'est pas un array.
+     */
+    public static function get_array_value($confVal, $index) {
+	$value = $confVal;	
+	if (is_array($confVal))
+	    if (empty($confVal)) {
+		throw new Exception("Config Array is empty !",1);
+            	exit(1);
+	    }
+
+	    // If config value is an array
+	    if (is_set($confVal[$index]) {
+		// If the index is present in the array
+	    	$value = $confVal[$index];
+	    } else {
+		// Index does not exist in array => default value is the first
+		$value = reset($confVal)
+	    }
+	}
+        return $value;
     }
 
     /**
@@ -59,7 +83,7 @@ class Config {
         return file_exists(dirname(__FILE__)."/../".self::config_file);
     }
 
-    # On récupère les données de configuration présentes dans le fichier
+    # On rï¿½cupï¿½re les donnï¿½es de configuration prï¿½sentes dans le fichier
     # /config/config.inc.php
     private function load_config() {
         $ldap_config = array();
@@ -70,20 +94,17 @@ class Config {
             $available_settings = get_class_vars(get_class($this));
             foreach($available_settings as $key => $value) {
                 $varname = $key;
-                if (isset($$varname)) {
+                if (isset($varname)) {
 
-                    $this->$key = $$varname;
-                    if (is_array($$varname)) {
-                        if (count($$varname)) {
-                            foreach($$varname as $key2 => $value2) {
+                    $this->$key = $varname;
+                    if (is_array($varname)) {
+                        if (count($varname)) {
+                            foreach($varname as $key2 => $value2) {
                             }
                         }
                     }
                 }
             }
-
-
-
 
         }
     }
