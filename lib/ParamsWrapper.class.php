@@ -175,6 +175,9 @@ class ParamsWrapper {
         $this->log->LogDebug("ParamsWrapper : Transformation des parametres pour sympa.pl pour l'operation CREATE ou UPDATE...");
         $output_params = array();
 
+		// Database index (which database use ?)
+		$dbIndex = $this->input_params[SympaRemoteConstants::INPUT_DATABASE_ID];
+
         /*
          * Recuperation du modele correspondant au type de liste demande et preparation des parametres
          */
@@ -208,7 +211,7 @@ class ParamsWrapper {
         // PARAMETRE 'NOM DE LA FAMILLE' DANS LAQUELLE CREER LA LISTE
         // On recupere la propriete contenant le nom de la famille dans laquelle ajouter la liste
         $this->log->LogDebug("ParamsWrapper : Construction du parametre ".SympaPLClient::ARGUMENT_FAMILLE);
-        $famille = $this->known_list_types->getModeleProperties($type_liste, ListTypes::FAMILLE);
+        $famille = $this->known_list_types->getModeleProperties($type_liste, ListTypes::FAMILLE, $dbIndex);
         $this->output_params[SympaPLClient::ARGUMENT_FAMILLE]=$famille;
         $this->log->LogDebug("ParamsWrapper : Parametre ".SympaPLClient::ARGUMENT_FAMILLE." = $famille");
 
@@ -216,7 +219,7 @@ class ParamsWrapper {
         // On recupere la propriete contenant le nom de la liste configuree dans le modele "type_liste" qui est le modele souhaite
         // Attention le listname peut contenir des parametres a remplacer... {CLASSE} .. etc
         $this->log->LogDebug("ParamsWrapper : Construction du parametre ".XMLBuilder::XML_TAG_LISTNAME);
-        $listname = $this->known_list_types->getModeleProperties($type_liste, ListTypes::NOM_LISTE);
+        $listname = $this->known_list_types->getModeleProperties($type_liste, ListTypes::NOM_LISTE, $dbIndex);
         // Si le parametre facultatif du type est defini, on tente de remplacer dans le listname
         if ($parametre_du_type) {
             $listname = ArgumentFiller::getFilledString($listname, $tokens);
@@ -228,7 +231,7 @@ class ParamsWrapper {
         // PARAMETRE 'SUBJECT'
         // On recupere aussi la propriete du model
         $this->log->LogDebug("ParamsWrapper : Construction du parametre ".XMLBuilder::XML_TAG_SUBJECT);
-        $subject = $this->known_list_types->getModeleProperties($type_liste, ListTypes::SUJET);
+        $subject = $this->known_list_types->getModeleProperties($type_liste, ListTypes::SUJET, $dbIndex);
         if ($parametre_du_type) {
             $subject = ArgumentFiller::getFilledString($subject, $tokens);
         }
@@ -237,13 +240,13 @@ class ParamsWrapper {
 
         // PARAMETRE 'TOPICS'
         $this->log->LogDebug("ParamsWrapper : Construction du parametre ".XMLBuilder::XML_TAG_TOPICS);
-        $topics = $this->known_list_types->getModeleProperties($type_liste, ListTypes::CATEGORIE);
+        $topics = $this->known_list_types->getModeleProperties($type_liste, ListTypes::CATEGORIE, $dbIndex);
         $this->output_params[XMLBuilder::XML_TAG_TOPICS] = $topics;
         $this->log->LogDebug("ParamsWrapper : Parametre ".XMLBuilder::XML_TAG_TOPICS." = $topics");
 
         // PARAMETRE 'DESCRIPTION'
         $this->log->LogDebug("ParamsWrapper : Construction du parametre ".XMLBuilder::XML_TAG_DESCRIPTION);
-        $description = $this->known_list_types->getModeleProperties($type_liste, ListTypes::DESC);
+        $description = $this->known_list_types->getModeleProperties($type_liste, ListTypes::DESC), $dbIndex;
         if ($parametre_du_type) {
             $description = ArgumentFiller::getFilledString($description, $tokens);
         }
@@ -262,14 +265,14 @@ class ParamsWrapper {
                 foreach($editors_alias as $id_request) {
                     // Pour chaque identifiant d'alias, on recupere la requete ldap associee et on la stocke dans le tableau
                     // On creer un tableau dont les identifiants des alias sont les cles du tableau
-                    $request=$this->known_list_types->getEditorRequestWithId($id_request);
+                    $request=$this->known_list_types->getEditorRequestWithId($id_request, $dbIndex);
                     $aliases[$id_request]=ArgumentFiller::getEscapedFilledString($request['ldapfilter'],$tokens);
                 }
             }
         }
 
         // On recupere les requetes d'inclusion d'editeurs obligatoires pour ce modele
-        $temp_mandatory_editors_alias = $this->known_list_types->getMandatoryEditorsRequestsForModel($type_liste);
+        $temp_mandatory_editors_alias = $this->known_list_types->getMandatoryEditorsRequestsForModel($type_liste, $dbIndex);
         $this->log->LogDebug("ParamsWrapper : Ajout des ecrivains obligatoires (requetes) si besoin");
         foreach($temp_mandatory_editors_alias as $id_request => $request) {
             // On ajoute tous les editeurs obligatoires qui n'ont pas ete fournis en parametres.
@@ -336,11 +339,11 @@ class ParamsWrapper {
         // C'est aussi un filtre, fourni dans le parametrage du modele de liste concerne.
         // Meme fonctionnement que pour le groupe des proprietaires, on remplace les tokens si besoin...
         $this->log->LogDebug("ParamsWrapper : Construction du parametre ".XMLBuilder::XML_TAG_SUBSCRIBERS_GROUP);
-        $subscribers_prop = $this->known_list_types->getModeleProperties($type_liste, ListTypes::ABONNES);
+        $subscribers_prop = $this->known_list_types->getModeleProperties($type_liste, ListTypes::ABONNES, $dbIndex);
         if ($subscribers_prop != "") {
             $subscribers_group = GroupSearcher::search(ArgumentFiller::getEscapedFilledString($subscribers_prop, $tokens));
             if ($subscribers_group == false) {
-                $this->log->LogError("ParamsWrapper : Aucun groupe d'abonne n'a etre trouve avec le filtre '\n".$this->known_list_types->getModeleProperties($type_liste, ListTypes::ABONNES)."'\nChanger le filtre dans la base de donnees des modeles");
+                $this->log->LogError("ParamsWrapper : Aucun groupe d'abonne n'a etre trouve avec le filtre '\n".$this->known_list_types->getModeleProperties($type_liste, ListTypes::ABONNES, $dbIndex)."'\nChanger le filtre dans la base de donnees des modeles");
                 throw new SympaRemoteBadConfigurationException("NO_SUBSCRIBERS",1);
                 exit(1);
             }
@@ -401,6 +404,9 @@ class ParamsWrapper {
      * @param <type> $value La valeur fournie par l'utilisateur
      */
     private function checkParameterValue($parameter) {
+    	// Database index (which database use ?)
+		$dbIndex = $this->input_params[SympaRemoteConstants::INPUT_DATABASE_ID];
+    
         if (strcmp($parameter,SympaRemoteConstants::INPUT_LIST_TYPE) == 0) {
             // On s'assure que le type de liste demandee fait bien partie des modeles connus
             if (!array_key_exists($this->input_params[SympaRemoteConstants::INPUT_LIST_TYPE], $this->known_list_types->getModeles())) {
@@ -429,7 +435,7 @@ class ParamsWrapper {
             if (!$editors_aliases[0] == "") {
                 $this->log->LogDebug("ParamsWrapper : controle des alias d'editeurs fournis");
                 foreach($editors_aliases as $alias) {
-                    if (!$this->known_list_types->isExistingPreparedRequest($alias)) {
+                    if (!$this->known_list_types->isExistingPreparedRequest($alias, $dbIndex)) {
                         $this->log->LogError("ParamsWrapper : la requete preparee ".$this->input_params[SympaRemoteConstants::INPUT_EDITORS_ALIASES]);
                         throw new ParamsWrapperCheckException('UNKNOWN_EDITORS',3);
                         exit(1);
@@ -471,7 +477,8 @@ class ParamsWrapper {
      * @return <type> true si le modele requiert un parametre, false autrement.
      */
     private function isListTypeNeedParameter($type) {
-        return $this->known_list_types->getModeleProperties($type, ListTypes::PARAMETRE_REQUIS);
+    	$dbIndex = $this->input_params[SympaRemoteConstants::INPUT_DATABASE_ID];
+        return $this->known_list_types->getModeleProperties($type, ListTypes::PARAMETRE_REQUIS, $dbIndex);
     }
 
     /**

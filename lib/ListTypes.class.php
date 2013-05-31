@@ -94,7 +94,7 @@ class ListTypes {
      * @param <type> $model_name Le nom du modele
      * @param <type> $property La propriete souhaitee
      */
-    public function getModeleProperties($model_name, $property) {
+    public function getModeleProperties($model_name, $property, $dbIndex) {
         if (strcmp($property,ListTypes::NOM_LISTE) == 0
             || strcmp($property,ListTypes::DESC) == 0
             || strcmp($property,ListTypes::CATEGORIE) == 0
@@ -108,10 +108,10 @@ class ListTypes {
             || strcmp($property,ListTypes::EDITEURS_COCHES) == 0
             || strcmp($property,ListTypes::EDITEURS_NON_COCHES) == 0 ) {
             // Sinon, c'est qu'on veut obtenir des informations que l'on a pas encore recupere en BD
-            $value = $this->getModelEditors($model_name, $property);
+            $value = $this->getModelEditors($model_name, $property, $dbIndex);
         }
         else if (strcmp($property,ListTypes::ABONNES) == 0) {
-            $value = $this->getModelSubscribers($model_name);
+            $value = $this->getModelSubscribers($model_name, $dbIndex);
         }
         else {
             $this->log->LogError("ListTypes : Propriete demandee non connue");
@@ -147,13 +147,13 @@ class ListTypes {
     }
 
     /**
-     * Fonction permettant de recuperer la requete pr�par�e ayant pour identifiant l'identifiant fourni.
+     * Fonction permettant de recuperer la requete preparee ayant pour identifiant l'identifiant fourni.
      * retourne la requete dans un tableau contenant une cle "display_name" et une cle "ldapfilter".
      * @param <type> $id_request l'identifiant de requete
      */
-    public function getEditorRequestWithId($id_request) {
+    public function getEditorRequestWithId($id_request, $dbIndex) {
         $the_request = array();
-        $con = $this->connect_to_db();
+        $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT display_name, ldapfilter FROM prepared_request WHERE id_request=$id_request";
         if (!$req = mysql_query($sql,$con)) {
             $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".mysql_error());
@@ -176,9 +176,9 @@ class ListTypes {
      * retourne la requete dans un tableau contenant une cle "id", une cle "display_name" et une cle "ldapfilter".
      * @param <type> $model_name
      */
-    public function getMandatoryEditorsRequestsForModel($model_name) {
+    public function getMandatoryEditorsRequestsForModel($model_name, $dbIndex) {
         $requests = array();
-        $con = $this->connect_to_db();
+        $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT id_request, display_name, ldapfilter FROM v_model_editors WHERE modelname='$model_name' AND category='MANDATORY'";
         if (!$req = mysql_query($sql,$con)) {
             $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".mysql_error());
@@ -211,9 +211,9 @@ class ListTypes {
      * @param <type> $editors_category la categorie d'editeurs
      * @return <type> array : un tableau contenant les requetes preparees, sous la forme de filtre LDAP.
      */
-    private function getModelEditors($model_name, $editors_category) {
+    private function getModelEditors($model_name, $editors_category, $dbIndex) {
         $editors_requests = array();
-        $con = $this->connect_to_db();
+        $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT * FROM v_model_editors WHERE modelname='$model_name' AND category='$editors_category'";
         if (!$req = mysql_query($sql,$con)) {
             $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".mysql_error());
@@ -238,9 +238,9 @@ class ListTypes {
      * @param <type> $model_name le nom du modele
      * @return <type> string : le filtre de groupe trouve en base de donnees
      */
-    private function getModelSubscribers($model_name) {
+    private function getModelSubscribers($model_name, $dbIndex) {
         $group = false;
-        $con = $this->connect_to_db();
+        $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT group_filter FROM model,model_subscribers WHERE model_subscribers.id = model.id AND model.modelname = '$model_name'";
         if (!$req = mysql_query($sql,$con)) {
             $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".mysql_error());
@@ -265,9 +265,9 @@ class ListTypes {
      * @param <type> $id_request l'identifiant de la requete preparee
      * @return <type> booleen
      */
-    public function isExistingPreparedRequest($id_request) {
+    public function isExistingPreparedRequest($id_request, $dbIndex) {
         $exists = false;
-        $con = $this->connect_to_db();
+        $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT count(id_request) AS value FROM prepared_request WHERE id_request=$id_request";
         if (!$req = mysql_query($sql,$con)) {
             $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".mysql_error());
