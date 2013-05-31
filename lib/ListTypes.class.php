@@ -138,7 +138,7 @@ class ListTypes {
             throw new ListTypesNoModelsFoundException("can't connect to database",2);
             exit(1);
         }
-        if (!mysql_select_db($this->config->db_db,$con)) {
+        if (!mysql_select_db($db, $con)) {
             $this->log->LogError("ListTypes : Impossible de trouver la base ".$db);
             throw new ListTypesNoModelsFoundException("No database ".$db, 2);
             exit(1);

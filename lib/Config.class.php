@@ -64,7 +64,7 @@ class Config {
 	    }
 
 	    // If config value is an array
-	    if (is_set($confValue[$index])) {
+	    if (isset($confValue[$index])) {
 			// If the index is present in the array
 	    	$value = $confValue[$index];
 	    } else {
