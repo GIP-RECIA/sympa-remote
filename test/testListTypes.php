@@ -29,7 +29,8 @@ try {
     $types->getModeleProperties('tous_personnels', ListTypes::SUJET);
     $types->getModeleProperties('tous_personnels', ListTypes::FAMILLE);
     $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_OBLIGATOIRES);
-    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_OPTIONNELS);
+    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_COCHES);
+    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_NON_COCHES);
     $types->getModeleProperties('tous_personnels', ListTypes::ABONNES);
 }
 catch(Exception $e) {
