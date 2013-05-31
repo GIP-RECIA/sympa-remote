@@ -59,7 +59,7 @@ class Config {
 	$value = $confValue;
 	if (is_array($confValue)) {
 	    if (empty($confValue)) {
-			throw new Exception("Config Array is empty for key " . $confKey . " !", 1);
+			throw new Exception("Config Array is empty !", 1);
             exit(1);
 	    }
 
@@ -96,12 +96,12 @@ class Config {
             $available_settings = get_class_vars(get_class($this));
             foreach($available_settings as $key => $value) {
                 $varname = $key;
-                if (isset($varname)) {
+                if (isset($$varname)) {
 
-                    $this->$key = $varname;
-                    if (is_array($varname)) {
-                        if (count($varname)) {
-                            foreach($varname as $key2 => $value2) {
+                    $this->$key = $$varname;
+                    if (is_array($$varname)) {
+                        if (count($$varname)) {
+                            foreach($$varname as $key2 => $value2) {
                             }
                         }
                     }
