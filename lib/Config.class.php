@@ -68,7 +68,7 @@ class Config {
 	    	$value = $confVal[$index];
 	    } else {
 		// Index does not exist in array => default value is the first
-		$value = reset($confVal)
+		$value = reset($confVal);
 	    }
 	}
         return $value;
