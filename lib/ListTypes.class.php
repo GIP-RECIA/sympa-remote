@@ -126,10 +126,10 @@ class ListTypes {
      * @return <type>
      */
     private function connect_to_db($dbIndex) {
-	    $host = $this->config->get_array_value($this->config->db_host, $dbIndex);
-		$user = $this->config->get_array_value($this->config->db_user, $dbIndex);
-		$pass = $this->config->get_array_value($this->config->db_pass, $dbIndex);
-		$db = $this->config->get_array_value($this->config->db_db, $dbIndex);
+	    $host = $this->config->get_array_value("db_host", $dbIndex);
+		$user = $this->config->get_array_value("db_user", $dbIndex);
+		$pass = $this->config->get_array_value("db_pass", $dbIndex);
+		$db = $this->config->get_array_value("db_db", $dbIndex);
 
         $con = mysql_connect($host, $user, $pass);
         if ($con == false) {

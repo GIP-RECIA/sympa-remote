@@ -56,10 +56,11 @@ class Config {
      * @return <type> String
      */
     public function get_array_value($confKey, $index = "Default") {
-	$value = $this->$confKey;	
+	$available_settings = get_class_vars(get_class($this));
+	$value = $available_settings[$confKey];	
 	if (is_array($value)) {
 	    if (empty($value)) {
-		throw new Exception("Config Array is empty !",1);
+		throw new Exception("Config Array is empty for key " . $confKey . " !", 1);
             	exit(1);
 	    }
 
@@ -85,7 +86,7 @@ class Config {
         return file_exists(dirname(__FILE__)."/../".self::config_file);
     }
 
-    # On r�cup�re les donn�es de configuration pr�sentes dans le fichier
+    # On recupere les donnees de configuration presentes dans le fichier
     # /config/config.inc.php
     private function load_config() {
         $ldap_config = array();
