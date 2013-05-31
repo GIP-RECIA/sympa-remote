@@ -126,10 +126,10 @@ class ListTypes {
      * @return <type>
      */
     private function connect_to_db($dbIndex) {
-	    $host = $this->config->get_array_value($this->config->db_host, $dbIndex);
-		$user = $this->config->get_array_value($this->config->db_user, $dbIndex);
-		$pass = $this->config->get_array_value($this->config->db_pass, $dbIndex);
-		$db = $this->config->get_array_value($this->config->db_db, $dbIndex);
+	    $host = Config::get_array_value($this->config->db_host, $dbIndex);
+		$user = Config::get_array_value($this->config->db_user, $dbIndex);
+		$pass = Config::get_array_value($this->config->db_pass, $dbIndex);
+		$db = Config::get_array_value($this->config->db_db, $dbIndex);
 		$this->log->LogDebug("ListTypes : database connexion informations are: host: $host ; user: $user ; db: $db");
         
         $con = mysql_connect($host, $user, $pass);
