@@ -5,7 +5,9 @@
  * de chaque type dans la base de donnees
  *
  * @Purpose: Test de la classe SympaPLClient
- *
+
+ * @Deprecated this test is no more needed !
+
  * @Author: Thomas BIZOUERNE, GIP RECIA 2011
  *
  */
@@ -22,9 +24,9 @@ $log->LogInfo("Debut du test ListTypes");
 $log->LogInfo("Test Recuperation parametre qui fonctionne : ".$config->__get("db_host"));
 
 try {
-    $perl = new Perl();
-    $perl->eval('use Digest::MD5');
-    echo $perl->{'Digest::MD5::md5_hex'}('Hello');
+    //$perl = new Perl();
+    //$perl->eval('use Digest::MD5');
+    //echo $perl->{'Digest::MD5::md5_hex'}('Hello');
 }
 catch(Exception $e) {
     $log->LogError("Test echoue : Exception inconnue : ".$e);

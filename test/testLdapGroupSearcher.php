@@ -57,7 +57,7 @@ try {
     $log->LogInfo("Test echoue : la recherche n'aurait pas du reussir");
 }
 catch(ArgumentFillerException $e) {
-    $log->LogError("Test OK : Message d'erreur obtenu : ".$e->getMessage());
+    $log->LogInfo("Test OK : Message d'erreur obtenu : ".$e->getMessage());
     exit(1);
 }
 catch(Exception $e) {
