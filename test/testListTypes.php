@@ -23,15 +23,15 @@ $log->LogInfo("Test Recuperation parametre qui fonctionne : ".$config->__get("db
 
 try {
     $types = new ListTypes();
-    $types->getModeleProperties('tous_personnels', ListTypes::NOM_LISTE);
-    $types->getModeleProperties('tous_personnels', ListTypes::DESC);
-    $types->getModeleProperties('tous_personnels', ListTypes::CATEGORIE);
-    $types->getModeleProperties('tous_personnels', ListTypes::SUJET);
-    $types->getModeleProperties('tous_personnels', ListTypes::FAMILLE);
-    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_OBLIGATOIRES);
-    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_COCHES);
-    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_NON_COCHES);
-    $types->getModeleProperties('tous_personnels', ListTypes::ABONNES);
+    $types->getModeleProperties('tous_personnels', ListTypes::NOM_LISTE, "Default");
+    $types->getModeleProperties('tous_personnels', ListTypes::DESC, "esco");
+    $types->getModeleProperties('tous_personnels', ListTypes::CATEGORIE, "esco");
+    $types->getModeleProperties('tous_personnels', ListTypes::SUJET, "esco");
+    $types->getModeleProperties('tous_personnels', ListTypes::FAMILLE, "cfa");
+    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_OBLIGATOIRES, "cfa");
+    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_COCHES, "cfa");
+    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_NON_COCHES, "Default"));
+    $types->getModeleProperties('tous_personnels', ListTypes::ABONNES, "Default"));
 }
 catch(Exception $e) {
     $log->LogError("Test echoue : Exception inconnue : ".$e);
