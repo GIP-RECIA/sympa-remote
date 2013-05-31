@@ -42,7 +42,7 @@ class ListTypes {
     /**
      * @Constructor Constructeur de la classe ListTypes
      */
-    public function __construct($dbIndex) {
+    public function __construct($dbIndex = "Default") {
         $this->log = $GLOBALS['logger'];
         $this->config = $GLOBALS['config'];
         $this->load_list_types($dbIndex);
@@ -126,10 +126,10 @@ class ListTypes {
      * @return <type>
      */
     private function connect_to_db($dbIndex) {
-	    $host = Config::get_array_value($dbIndex, $this->config->db_host);
-		$user = Config::get_array_value($dbIndex, $this->config->db_user);
-		$pass = Config::get_array_value($dbIndex, $this->config->db_pass);
-		$db = Config::get_array_value($dbIndex, $this->config->db_db);
+	    $host = Config::get_array_value($this->config->db_host, $dbIndex);
+		$user = Config::get_array_value($this->config->db_user, $dbIndex);
+		$pass = Config::get_array_value($this->config->db_pass, $dbIndex);
+		$db = Config::get_array_value($this->config->db_db, $dbIndex);
 
         $con = mysql_connect($host, $user, $pass);
         if ($con == false) {

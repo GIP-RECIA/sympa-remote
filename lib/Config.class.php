@@ -54,16 +54,16 @@ class Config {
      * Permet de recupere une valeur de configuration possiblement contenu dans un array.
      * @return <type> la valeur a la position $index dans l'array ou bien $object si $object n'est pas un array.
      */
-    public static function get_array_value($confVal, $index) {
+    public static function get_array_value($confVal, $index = "Default") {
 	$value = $confVal;	
-	if (is_array($confVal))
+	if (is_array($confVal)) {
 	    if (empty($confVal)) {
 		throw new Exception("Config Array is empty !",1);
             	exit(1);
 	    }
 
 	    // If config value is an array
-	    if (is_set($confVal[$index]) {
+	    if (is_set($confVal[$index])) {
 		// If the index is present in the array
 	    	$value = $confVal[$index];
 	    } else {
