@@ -56,7 +56,7 @@ try {
     $grouptest = GroupSearcher::search($complexe_arg);
     $log->LogInfo("Test echoue : la recherche n'aurait pas du reussir");
 }
-catch(GroupSearcherArgumentBuilderException $e) {
+catch(ArgumentFillerException $e) {
     $log->LogError("Test OK : Message d'erreur obtenu : ".$e->getMessage());
     exit(1);
 }

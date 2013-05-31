@@ -32,7 +32,7 @@ class ParamsWrapper {
     /**
      * Constructeur
      */
-    public function __construct() {
+    public function __construct($input_params) {
         //$this->ldap_con = $ldap_connection;
         $this->log = $GLOBALS['logger'];
         $this->config = $GLOBALS['config'];
@@ -52,6 +52,11 @@ class ParamsWrapper {
                 $this->input_params = $_GET;
             }
         }
+	
+        if (isset($input_params)) {
+            $this->input_params = $input_params;
+        }
+
         $this->log->LogDebug("ParamsWrapper : Params = " . print_r($this->input_params, true));
         $this->loadListTypes();
     }
@@ -491,8 +496,8 @@ class ParamsWrapper {
          * Chargement des types de listes possibles
          */
         try {
-    	    $databseId = $this->input_params[SympaRemoteConstants::INPUT_DATABASE_ID];
-            $this->known_list_types = new ListTypes($databseId);
+    	    $databaseId = $this->input_params[SympaRemoteConstants::INPUT_DATABASE_ID];
+            $this->known_list_types = new ListTypes($databaseId);
         }
         catch(ListTypesDirectoryNotFoundException $e) {
             $this->log->LogError("ParamsWrapper : BAD CONFIGURATION \n$e");
