@@ -19,6 +19,8 @@ class Config {
      */
     private $debug_level = null;
 
+    private $log_file = null;
+
     private $sympa_bin_dir = null;
 
     private $param_method = null;

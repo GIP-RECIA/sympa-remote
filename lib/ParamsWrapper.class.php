@@ -32,7 +32,7 @@ class ParamsWrapper {
     /**
      * Constructeur
      */
-    public function __construct($input_params) {
+    public function __construct($input_params = null) {
         //$this->ldap_con = $ldap_connection;
         $this->log = $GLOBALS['logger'];
         $this->config = $GLOBALS['config'];
