@@ -24,49 +24,66 @@ $log->LogInfo("Test Recuperation parametre qui fonctionne : ".$config->__get("db
 // tableau de parametres
 $input_params = array();
 
-
-// Test pour des parametres manquants
-//doTestWith("parametre manquant (operation)","","tous_personnels","", "0410017W", "STRICT", "1", false);
-//doTestWith("parametre manquant (type de liste)","CREATE", "","", "0410017W", "STRICT", "1",false);
-//doTestWith("parametre manquant (parametre de type)","CREATE", "eleves_classe","", "0410017W", "STRICT", "1",false);
-//doTestWith("parametre manquant (rne)","CREATE", "tous_personnels","", "", "STRICT", "1",false);
-//doTestWith("parametre manquant (politique ecriture)","CREATE", "tous_personnels","", "0410017W", "", "1",false);
-// Le parametre groupes n'est pas obligatoire
-//doTestWith("parametre facultatif manquant (alias d'editeurs)","CREATE", "tous_personnels","", "0410017W", "STRICT", "",true);
-
-// Test de mauvaises valeurs pour les parametres
-//doTestWith("mauvaise operation","BAD", "tous_personnels","CLASSE$701", "0410017W", "EXTENDED", "1",false);
-//doTestWith("mauvais type de liste","CREATE", "bad_type","CLASSE$701", "0410017W", "EXTENDED", "1",false);
-//doTestWith("parametre de type requis mais non present","CREATE", "eleves_classe","", "0410017W", "EXTENDED", "1",false);
-//doTestWith("rne non present","CREATE", "tous_personnels","CLASSE$701", "", "EXTENDED", "1",false);
-//doTestWith("mauvaise politique d'ecriture","CREATE", "tous_personnels","CLASSE$701", "0410017W", "BAD_POL", "1",false);
-//doTestWith("alias d'editeur inexistant","CREATE", "tous_personnels","CLASSE$701", "0410017W", "BAD_POL", "180",false);
-//doTestWith("un alias d'editeur inexistant parmi plusieurs","CREATE", "tous_personnels","CLASSE$701", "0410017W", "BAD_POL", "1$180",false);
-doTestWith("eleves de la classe 701","CREATE", "eleves_classe","CLASSE$701", "0410017W", "newsletter", "",true);
+// Test Close / create list
+doCloseTestWith("Close list 'eleves de la classe 701'", "eleves701", true);
+doCreateTestWith("Create list 'eleves de la classe 701'", "eleves_classe","CLASSE$701", "0410017W", "newsletter", "", true);
 
 
-function doTestWith($test_desc,$operation,$type,$type_param,$rne,$policy,$editors_aliases,$must_succeed) {
+function doCloseTestWith($test_desc,$listNameToClose,$must_succeed) {
     echo "TEST : $test_desc : ";
     $GLOBALS['logger']->LogError("Test execute : $test_desc ");
     $succeed = true;
-    $input_params[SympaRemoteConstants::INPUT_OPERATION]=$operation;
+    $input_params[SympaRemoteConstants::INPUT_OPERATION] = "CLOSE";
+    $input_params[SympaRemoteConstants::INPUT_LIST_NAME_TO_CLOSE]=$listNameToClose . "@0450822x.list.netocentre.fr";
+    try {
+        $params_wrapper = new ParamsWrapper($input_params);
+        $params_wrapper->check();
+        $params_wrapper->wrap();
+        $xml_content = XMLBuilder::buildXML($params_wrapper->getWrappedParameters());
+        echo "<xmp>";
+        print_r($xml_content);
+        echo "</xmp>";
+        $sympa_client = new SympaPLClient();
+
+        $sympa_client->closeList($listNameToClose);
+    }
+    catch(Exception $e) {
+        $GLOBALS['logger']->LogError("Exception inconnue : ".$e);
+        $succeed = false;
+    }
+    if  ($must_succeed == $succeed) {
+        echo "<font color=\"green\">OK</font>";
+        $GLOBALS['logger']->LogInfo("Test OK");
+    }
+    else {
+        echo "<font color=\"red\">FAILED (Maybe the list wasnt created before. You should rerun the test.)</font>";
+        $GLOBALS['logger']->LogInfo("Test ECHOUE");
+    }
+    echo "<br>";
+}
+
+function doCreateTestWith($test_desc,$operation,$type,$type_param,$rne,$policy,$editors_aliases,$must_succeed) {
+    echo "TEST : $test_desc : ";
+    $GLOBALS['logger']->LogError("Test execute : $test_desc ");
+    $succeed = true;
+    $input_params[SympaRemoteConstants::INPUT_OPERATION] = "CREATE";
     $input_params[SympaRemoteConstants::INPUT_LIST_TYPE]=$type;
     $input_params[SympaRemoteConstants::INPUT_LIST_TYPE_PARAMETER]=$type_param;
     $input_params[SympaRemoteConstants::INPUT_RNE]=$rne;
     $input_params[SympaRemoteConstants::INPUT_WRITING_POLICY]=$policy;
     $input_params[SympaRemoteConstants::INPUT_EDITORS_ALIASES]=$editors_aliases;
+
     try {
         $params_wrapper = new ParamsWrapper($input_params);
-    $params_wrapper->check();
-    $params_wrapper->wrap();
-    $xml_content = XMLBuilder::buildXML($params_wrapper->getWrappedParameters());
-    echo "<xmp>";
-    print_r($xml_content);
-    echo "</xmp>";
-    $sympa_client = new SympaPLClient();
-    //$sympa_client->createListWithXML($xml_content, $params_wrapper->getWrappedParameter(SympaPLClient::ARGUMENT_FAMILLE), "boulez.giprecia.net");
-    // Test qui rate
-    $sympa_client->createListWithXML($xml_content, $params_wrapper->getWrappedParameter(SympaPLClient::ARGUMENT_FAMILLE), "boulez.giprecia.net");
+        $params_wrapper->check();
+        $params_wrapper->wrap();
+        $xml_content = XMLBuilder::buildXML($params_wrapper->getWrappedParameters());
+        echo "<xmp>";
+        print_r($xml_content);
+        echo "</xmp>";
+        $sympa_client = new SympaPLClient();
+
+        $sympa_client->createListWithXML($xml_content, $params_wrapper->getWrappedParameter(SympaPLClient::ARGUMENT_FAMILLE), "0450822x.list.netocentre.fr");
     }
     catch(ParamsWrapperCheckException $e) {
         $GLOBALS['logger']->LogError("Erreur lors de la verification des parametres : ".$e);

@@ -26,22 +26,22 @@ $input_params = array();
 
 
 // Test pour des parametres manquants
-doTestWith("parametre manquant (operation)","","tous_personnels","", "0410017W", "STRICT", "1", false);
+doTestWith("parametre manquant (operation)","","tous_administratifs","", "0410017W", "STRICT", "1", false);
 doTestWith("parametre manquant (type de liste)","CREATE", "","", "0410017W", "STRICT", "1",false);
 doTestWith("parametre manquant (parametre de type)","CREATE", "eleves_classe","", "0410017W", "STRICT", "1",false);
-doTestWith("parametre manquant (rne)","CREATE", "tous_personnels","", "", "STRICT", "1",false);
-doTestWith("parametre manquant (politique ecriture)","CREATE", "tous_personnels","", "0410017W", "", "1",false);
+doTestWith("parametre manquant (rne)","CREATE", "tous_eleves","", "", "STRICT", "1",false);
+doTestWith("parametre manquant (politique ecriture)","CREATE", "tous_administratifs","", "0410017W", "", "1",false);
 // Le parametre groupes n'est pas obligatoire
-doTestWith("parametre facultatif manquant (alias d'editeurs)","CREATE", "tous_personnels","", "0410017W", "STRICT", "",true);
+doTestWith("parametre facultatif manquant (alias d'editeurs)","CREATE", "tous_administratifs","", "0410017W", "newsletter", "",true);
 
 // Test de mauvaises valeurs pour les parametres
-doTestWith("mauvaise operation","BAD", "tous_personnels","CLASSE$701", "0410017W", "EXTENDED", "1",false);
+doTestWith("mauvaise operation","BAD", "tous_enseignants","CLASSE$701", "0410017W", "EXTENDED", "1",false);
 doTestWith("mauvais type de liste","CREATE", "bad_type","CLASSE$701", "0410017W", "EXTENDED", "1",false);
 doTestWith("parametre de type requis mais non present","CREATE", "eleves_classe","", "0410017W", "EXTENDED", "1",false);
-doTestWith("rne non present","CREATE", "tous_personnels","CLASSE$701", "", "EXTENDED", "1",false);
-doTestWith("mauvaise politique d'ecriture","CREATE", "tous_personnels","CLASSE$701", "0410017W", "BAD_POL", "1",false);
-doTestWith("alias d'editeur inexistant","CREATE", "tous_personnels","CLASSE$701", "0410017W", "BAD_POL", "180",false);
-doTestWith("un alias d'editeur inexistant parmi plusieurs","CREATE", "tous_personnels","CLASSE$701", "0410017W", "BAD_POL", "1$180",false);
+doTestWith("rne non present","CREATE", "tous_administratifs","CLASSE$701", "", "EXTENDED", "1",false);
+doTestWith("mauvaise politique d'ecriture","CREATE", "tous_administratifs","CLASSE$701", "0410017W", "BAD_POL", "1",false);
+doTestWith("alias d'editeur inexistant","CREATE", "tous_administratifs","CLASSE$701", "0410017W", "BAD_POL", "180",false);
+doTestWith("un alias d'editeur inexistant parmi plusieurs","CREATE", "tous_administratifs","CLASSE$701", "0410017W", "BAD_POL", "1$180",false);
 
 
 
@@ -56,7 +56,7 @@ function doTestWith($test_desc,$operation,$type,$type_param,$rne,$policy,$editor
     $input_params[SympaRemoteConstants::INPUT_WRITING_POLICY]=$policy;
     $input_params[SympaRemoteConstants::INPUT_EDITORS_ALIASES]=$editors_aliases;
     try {
-        $params_wrapper = new ParamsWrapper();
+        $params_wrapper = new ParamsWrapper($input_params);
         $params_wrapper->check();
         $params_wrapper->wrap();
     }
