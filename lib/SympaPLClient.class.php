@@ -105,7 +105,7 @@ class SympaPLClient {
         $end = time();
         $duration = $end-$start;
         $this->log->LogDebug("SympaPLClient : duree = $duration secondes");
-        $this->analyzeCloseOuput($output);
+        $this->analyzeCloseOutput($output);
 
     }
 
@@ -143,7 +143,7 @@ class SympaPLClient {
         $end = time();
         $duration = $end-$start;
         $this->log->LogDebug("SympaPLClient : duree = $duration secondes");
-        $this->analyzeOuput($output, $allowUpdate);
+        $this->analyzeOutput($output, $allowUpdate);
     }
 
     /**
@@ -188,7 +188,7 @@ class SympaPLClient {
      * @param <type> $output la sortie de la commande
      * @param <type> $allowUpdate if true analyze the output of a sympa update
      */
-    private function analyzeOuput($output, $allowUpdate) {
+    private function analyzeOutput($output, $allowUpdate) {
         $return = self::CODE_OK;
         if (!is_array($output)) {
             $this->log->LogWarn("SympaPLClient : une creation de liste a echouee (output non tableau)");
@@ -239,7 +239,7 @@ class SympaPLClient {
      * en fonction de la sortie recuperee
      * @param <type> $output la sortie de la commande
      */
-    private function analyzeCloseOuput($output) {
+    private function analyzeCloseOutput($output) {
         if (!is_array($output)) {
             $this->log->LogWarn("SympaPLClient : une fermeture de liste a echouee (output non tableau)");
             throw new PhpException("ERROR_CLOSING_LIST",1);
