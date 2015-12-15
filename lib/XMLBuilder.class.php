@@ -31,7 +31,10 @@ class XMLBuilder {
     // Sous-Balise particuliere
     const XML_TAG_GROUPNAME = "groupname";
     const XML_TAG_REQUEST = "request";
-
+		//MADE pierre XML_TAG_SOURSE et suffix;
+	const XML_TAG_SOURCE = "source";
+	const XML_TAG_SUFFIX = "suffix";
+		
     /**** Logger ****/
     static private $log = null;
 
@@ -66,7 +69,12 @@ class XMLBuilder {
         self::insertValueInTag(self::XML_TAG_OWNERS_GROUP, $values[self::XML_TAG_OWNERS_GROUP]);
         if (is_array($values[self::XML_TAG_EDITORS_FROM_REQUEST])) {
             foreach($values[self::XML_TAG_EDITORS_FROM_REQUEST] as $request) {
-                self::insertValueInTag(self::XML_TAG_EDITORS_FROM_REQUEST, $request);
+				if (is_Array($request) ) {
+						//MADE pierre cas on o a dans l'ordre le filtre ldap, la data_source et le suffix ldap  
+					self::insertValueInTag(self::XML_TAG_EDITORS_FROM_REQUEST, $request[0] , $request[1], $request[2]);	 
+				} else {
+					self::insertValueInTag(self::XML_TAG_EDITORS_FROM_REQUEST, $request);
+				}
             }
         }
         if (is_array($values[self::XML_TAG_EDITORS_FROM_GROUP])) {
@@ -119,8 +127,10 @@ class XMLBuilder {
      * Fonction permattant d'ajouter une valeur entre une balise ouvrante et fermante
      * @param <type> $tagname la balise
      * @param <type> $value la valeur a inserer
+     * @param <type> $source falcultative a inserer pour le tag EDITORS_FROM_REQUEST
+     * @param <type> $suffix falcultatif a inserer pour le tag EDITORS_FROM_REQUEST
      */
-    static private function insertValueInTag($tagname, $value) {
+    static private function insertValueInTag($tagname, $value, $source=null, $suffix=null) {
         if (strcmp($tagname, self::XML_TAG_EDITORS_FROM_GROUP) == 0 || strcmp($tagname, self::XML_TAG_OWNERS_GROUP) == 0) {
             self::insertStartTag($tagname,true);
             self::insertValueInTag(self::XML_TAG_GROUPNAME, $value);
@@ -129,8 +139,14 @@ class XMLBuilder {
         else if (strcmp($tagname, self::XML_TAG_EDITORS_FROM_REQUEST) == 0) {
             self::insertStartTag($tagname,true);
             self::insertValueInTag(self::XML_TAG_REQUEST, $value);
+            if ($source != null) {//MADE pierre
+				self::insertValueInTag(self::XML_TAG_SOURCE, $source);
+			}
+			if ($suffix != null) {//MADE pierre
+				self::insertValueInTag(self::XML_TAG_SUFFIX, $suffix);
+			}
             self::insertEndTag($tagname);
-        }
+        }  
         else {
             self::insertStartTag($tagname,false);
             self::insertValue($value);

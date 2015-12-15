@@ -10,7 +10,7 @@
  */
 
 // Initialisation du Logger
-$log = new KLogger ( "./testLdapGroupSearcher.log" , KLogger::DEBUG );
+$log = new KLogger ( "/tmp/testLdapGroupSearcher.log" , KLogger::DEBUG );
 $GLOBALS['logger'] = $log;
 
 // Test getter
@@ -18,7 +18,7 @@ $config = new Config();
 
 // Recuperation d'une valeur de configuration avec le getter magique
 $log->LogInfo("Debut du test LdapGroupSearcher");
-$log->LogInfo("Test Recuperation parametre qui fonctionne : ".$config->__get("param_rne_etab"));
+//$log->LogInfo("Test Recuperation parametre qui fonctionne : ".$config->__get("param_rne_etab"));
 
 $simple_search = "esco:admin:local:admin*_0410017W";
 
@@ -39,7 +39,7 @@ catch(Exception $e) {
 $log->LogInfo("Test Recherche Complexe qui fonctionne");
 $array_values = array('RNE' => "0370001A", 'CLASSE' => "701");
 try {
-    $complexe_arg = GroupSearcherArgumentBuilder::buildArgument($complexe_search,$array_values);
+    $complexe_arg = ArgumentFiller::getEscapedFilledString($complexe_search, $array_values);
     $grouptest = GroupSearcher::search($complexe_arg);
     $log->LogInfo("Test OK : $grouptest");
 }
@@ -52,12 +52,12 @@ catch(Exception $e) {
 $log->LogInfo("Test Recherche Complexe qui echoue : $grouptest");
 $array_values = array('CLASSE' => "701");
 try {
-    $complexe_arg = GroupSearcherArgumentBuilder::buildArgument($complexe_search,$array_values);
+    $complexe_arg = ArgumentFiller::getEscapedFilledString($complexe_search, $array_values);
     $grouptest = GroupSearcher::search($complexe_arg);
     $log->LogInfo("Test echoue : la recherche n'aurait pas du reussir");
 }
-catch(GroupSearcherArgumentBuilderException $e) {
-    $log->LogError("Test OK : Message d'erreur obtenu : ".$e->getMessage());
+catch(ArgumentFillerException $e) {
+    $log->LogInfo("Test OK : Message d'erreur obtenu : ".$e->getMessage());
     exit(1);
 }
 catch(Exception $e) {

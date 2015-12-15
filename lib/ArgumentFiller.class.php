@@ -60,7 +60,7 @@ class ArgumentFiller {
      
      * @param <type> $string la chaine a pre-traiter
      */
-    public static function getEscapedFilledString($string,$array_values) {
+    public static function getEscapedFilledString($string, $array_values) {
         self::$log = $GLOBALS['logger'];
         self::$config = $GLOBALS['config'];
         $filled_string = $string;

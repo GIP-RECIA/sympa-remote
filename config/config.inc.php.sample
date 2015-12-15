@@ -9,6 +9,9 @@
 /**** Niveau de log du logger (DEBUG, INFO, WARN, ERROR, FATAL, OFF) ****/
 $debug_level = "DEBUG";
 
+/**** File path for log file. ****/
+$log_file = "/var/log/sympa-remote/sympa-remote.log";
+
 /**** Chemin vers sympa.pl ***/
 $sympa_bin_dir = "/home/sympa/bin/";
 
@@ -59,7 +62,7 @@ $db_user = "########";
 /**** Mot de passe ****/
 $db_pass = "########";
 /**** Nom de la base de donnees ****/
-$db_db = "########";
+$db_db = array("esco" => "########", "cfa"=> "########");
 
 /*****************************************************************************
  * ACCES A L'ANNUAIRE LDAP

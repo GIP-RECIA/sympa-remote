@@ -10,7 +10,7 @@
  */
 
 // Initialisation du Logger
-$log = new KLogger ( "./testConfigChecker.log" , KLogger::DEBUG );
+$log = new KLogger ( "/tmp/testConfigChecker.log" , KLogger::DEBUG );
 $GLOBALS['logger'] = $log;
 
 // Test getter

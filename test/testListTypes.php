@@ -11,7 +11,7 @@
  */
 
 // Initialisation du Logger
-$log = new KLogger ( "./testListTypes.log" , KLogger::DEBUG );
+$log = new KLogger ( "/tmp/testListTypes.log" , KLogger::DEBUG );
 $GLOBALS['logger'] = $log;
 
 // Test getter
@@ -23,14 +23,15 @@ $log->LogInfo("Test Recuperation parametre qui fonctionne : ".$config->__get("db
 
 try {
     $types = new ListTypes();
-    $types->getModeleProperties('tous_personnels', ListTypes::NOM_LISTE);
-    $types->getModeleProperties('tous_personnels', ListTypes::DESC);
-    $types->getModeleProperties('tous_personnels', ListTypes::CATEGORIE);
-    $types->getModeleProperties('tous_personnels', ListTypes::SUJET);
-    $types->getModeleProperties('tous_personnels', ListTypes::FAMILLE);
-    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_OBLIGATOIRES);
-    $types->getModeleProperties('tous_personnels', ListTypes::EDITEURS_OPTIONNELS);
-    $types->getModeleProperties('tous_personnels', ListTypes::ABONNES);
+    $types->getModeleProperties('tous_administratifs', ListTypes::NOM_LISTE, "Default");
+    $types->getModeleProperties('tous_administratifs', ListTypes::DESC, "esco");
+    $types->getModeleProperties('tous_administratifs', ListTypes::CATEGORIE, "esco");
+    $types->getModeleProperties('tous_administratifs', ListTypes::SUJET, "esco");
+    $types->getModeleProperties('tous_administratifs', ListTypes::FAMILLE, "cfa");
+    $types->getModeleProperties('tous_administratifs', ListTypes::EDITEURS_OBLIGATOIRES, "cfa");
+    $types->getModeleProperties('tous_administratifs', ListTypes::EDITEURS_COCHES, "cfa");
+    $types->getModeleProperties('tous_administratifs', ListTypes::EDITEURS_NON_COCHES, "Default");
+    $types->getModeleProperties('tous_administratifs', ListTypes::ABONNES, "Default");
 }
 catch(Exception $e) {
     $log->LogError("Test echoue : Exception inconnue : ".$e);

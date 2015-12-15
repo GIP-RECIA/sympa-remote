@@ -19,6 +19,8 @@ class Config {
      */
     private $debug_level = null;
 
+    private $log_file = null;
+
     private $sympa_bin_dir = null;
 
     private $param_method = null;
@@ -43,11 +45,37 @@ class Config {
      * Constructeur
      */
     public function __construct() {
-        # On charge la configuration et on établit la connexion si
-        # le serveur a été configuré.
+        # On charge la configuration et on etablit la connexion si
+        # le serveur a ete configure.
         if (self::is_setup()) {
             $this->load_config();
         }
+    }
+
+    /**
+     * Permet de recupere une valeur de configuration possiblement contenu dans un array.
+     * Retourne la valeur a la position $index dans l'array ou bien $object si $object n'est pas un array.
+     * @return <type> String
+     */
+    public static function get_array_value($confValue, $index = "Default") {
+	$value = $confValue;
+	if (is_array($confValue)) {
+	    if (empty($confValue)) {
+			throw new Exception("Config Array is empty !", 1);
+            exit(1);
+	    }
+
+	    // If config value is an array
+	    if (isset($confValue[$index])) {
+			// If the index is present in the array
+	    	$value = $confValue[$index];
+	    } else {
+			// Index does not exist in array => default value is the first
+			$value = reset($confValue);
+	    }
+	}
+
+        return $value;
     }
 
     /**
@@ -59,7 +87,7 @@ class Config {
         return file_exists(dirname(__FILE__)."/../".self::config_file);
     }
 
-    # On récupère les données de configuration présentes dans le fichier
+    # On recupere les donnees de configuration presentes dans le fichier
     # /config/config.inc.php
     private function load_config() {
         $ldap_config = array();
@@ -81,9 +109,6 @@ class Config {
                     }
                 }
             }
-
-
-
 
         }
     }

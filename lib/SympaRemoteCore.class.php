@@ -17,9 +17,6 @@ class SympaRemoteCore {
     /* Objet gerant les parametres d'entree */
     private $params_wrapper = null;
 
-    /* Objet gerant les types de listes qu'il est possible de creer */
-    private $list_types = null;
-
     /* connexion au ldap */
     private $ldap = null;
 
@@ -35,8 +32,22 @@ class SympaRemoteCore {
         $xml_content = XMLBuilder::buildXML($this->params_wrapper->getWrappedParameters());
         $sympa_client = new SympaPLClient();
         $main_robot_name = strtolower($this->params_wrapper->getWrappedParameter(SympaRemoteConstants::INPUT_RNE)).".".$this->config->sympa_main_domain;
-        $sympa_client->createListWithXML($xml_content, $this->params_wrapper->getWrappedParameter(SympaPLClient::ARGUMENT_FAMILLE), $main_robot_name);
-    }
+
+		$operation = $this->params_wrapper->getWrappedParameter(SympaRemoteConstants::INPUT_OPERATION);
+		$this->log->LogDebug("Operation : " . $operation);
+		switch ($operation) {
+			case "CREATE":
+				$sympa_client->createListWithXML($xml_content, $this->params_wrapper->getWrappedParameter(SympaPLClient::ARGUMENT_FAMILLE), $main_robot_name);
+				break;
+			case "UPDATE":
+				$sympa_client->updateListWithXML($xml_content, $this->params_wrapper->getWrappedParameter(SympaPLClient::ARGUMENT_FAMILLE), $main_robot_name);
+				break;
+			case "CLOSE":
+				$listname = $this->params_wrapper->getWrappedParameter(SympaRemoteConstants::INPUT_LIST_NAME_TO_CLOSE);
+				$sympa_client->closeList($listname);
+				break;
+		}
+    }		
 
 
 
@@ -46,7 +57,6 @@ class SympaRemoteCore {
      */
     public function __construct() {
         $this->initialize();
-        $this->load_list_types();
         $this->params_wrapper = new ParamsWrapper();
     }
 
@@ -78,20 +88,11 @@ class SympaRemoteCore {
         else if(strcasecmp("OFF", $this->config->debug_level) == 0) {
             $debug_const = KLogger::OFF;
         }
-        $this->log = new KLogger ( "/var/log/sympa-remote/sympa-remote.log" , $debug_const );
+        $this->log = new KLogger ( $this->config->log_file , $debug_const );
         $GLOBALS['logger'] = $this->log;
         $this->check_conf();
         $this->log->LogDebug("Init...OK");
 
-    }
-
-    /**
-     * Fonction permettant de charger depuis le repertoire adequat les
-     * differents types de listes qu'il est possible de creer, ainsi que leurs
-     * parametres correspondants
-     */
-    private function load_list_types() {
-        $this->list_types = new ListTypes();
     }
 
     /*
