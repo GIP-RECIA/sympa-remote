@@ -1,3 +1,7 @@
+
+esco-sympa-remote-V0.8
+Permet d'avoir de prepared_request sur differentes data_source et avec des bases de recherche ldap parametrables.  
+
 esco-sympa-remote-V0.7
 Configuration de multiple base de données possible : choix à la demande
 
