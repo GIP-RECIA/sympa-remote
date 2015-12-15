@@ -61,7 +61,7 @@ class ListTypes {
         // On recupere les modeles de listes
         $sql = "SELECT * FROM model";
         if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".mysql_error());
+            $this->log->LogError("ListTypes: Impossible d'effectuer la requete\n".$sql .mysql_error());
             throw new ListTypesNoModelsFoundException("can't make the request (table not found ?)",2);
             exit(1);
         }
@@ -93,6 +93,7 @@ class ListTypes {
      * Permet de recuperer une propriete d'un modele
      * @param <type> $model_name Le nom du modele
      * @param <type> $property La propriete souhaitee
+     * @return la valeur de la propriete : peut être un tableau de valeur (pour les editors notamment)
      */
     public function getModeleProperties($model_name, $property, $dbIndex) {
         if (strcmp($property,ListTypes::NOM_LISTE) == 0
@@ -108,6 +109,7 @@ class ListTypes {
             || strcmp($property,ListTypes::EDITEURS_COCHES) == 0
             || strcmp($property,ListTypes::EDITEURS_NON_COCHES) == 0 ) {
             // Sinon, c'est qu'on veut obtenir des informations que l'on a pas encore recupere en BD
+            //MADE $value devient ici un tableau à trois valeurs. 
             $value = $this->getModelEditors($model_name, $property, $dbIndex);
         }
         else if (strcmp($property,ListTypes::ABONNES) == 0) {
@@ -151,12 +153,13 @@ class ListTypes {
      * retourne la requete dans un tableau contenant une cle "display_name" et une cle "ldapfilter".
      * @param <type> $id_request l'identifiant de requete
      */
+     //MADE pierre modification de la requette pour donner la data source et le ldap suffix.
     public function getEditorRequestWithId($id_request, $dbIndex) {
         $the_request = array();
         $con = $this->connect_to_db($dbIndex);
-        $sql = "SELECT display_name, ldapfilter FROM prepared_request WHERE id_request=$id_request";
+        $sql = "SELECT display_name, ldapfilter, data_source, ldap_suffix FROM prepared_request WHERE id_request=$id_request";
         if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".mysql_error());
+            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysql_error());
             throw new ListTypesSQLException("can't make the request (table not found ?)",2);
             exit(1);
         }
@@ -164,6 +167,8 @@ class ListTypes {
             $prepared_request = mysql_fetch_assoc($req);
             $the_request['display_name']=$prepared_request['display_name'];
             $the_request['ldapfilter']=$prepared_request['ldapfilter'];
+             $the_request['source']=$prepared_request['data_source'];
+            $the_request['ldapsuffix']=$prepared_request['ldap_suffix'];
             $this->log->LogDebug("ListTypes : requete editeur avec id $id_request trouvee : ".implode("/",$the_request));
             mysql_free_result($req);
         }
@@ -174,14 +179,16 @@ class ListTypes {
     /**
      * Fonction permettant de recuperer les requetes obligatoires pour un model
      * retourne la requete dans un tableau contenant une cle "id", une cle "display_name" et une cle "ldapfilter".
+     * PL : ajout de "source" et "ldapsuffix":
      * @param <type> $model_name
      */
+     //MADE pierre ... ajout de source et ldapsuffix dans la tableau resultat
     public function getMandatoryEditorsRequestsForModel($model_name, $dbIndex) {
         $requests = array();
         $con = $this->connect_to_db($dbIndex);
-        $sql = "SELECT id_request, display_name, ldapfilter FROM v_model_editors WHERE modelname='$model_name' AND category='MANDATORY'";
+        $sql = "SELECT id_request, display_name, ldapfilter, data_source, ldap_suffix  FROM v_model_editors WHERE modelname='$model_name' AND category='MANDATORY'";
         if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".mysql_error());
+            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysql_error());
             throw new ListTypesSQLException("can't make the request (table not found ?)",2);
             exit(1);
         }
@@ -191,6 +198,8 @@ class ListTypes {
                 $requests[$id_request]=array();
                 $requests[$id_request]['display_name']=$prepared_requests['display_name'];
                 $requests[$id_request]['ldapfilter']=$prepared_requests['ldapfilter'];
+                $requests[$id_request]['source']=$prepared_requests['data_source'];
+				$requests[$id_request]['ldapsuffix']=$prepared_requests['ldap_suffix'];
                 $this->log->LogDebug("ListTypes : filtre d'editeurs obligatoires : ".implode("/",$requests[$id_request]));
             }
             mysql_free_result($req);
@@ -209,21 +218,24 @@ class ListTypes {
      * Cf. Valeurs possibles de category dans le modele de BD)
      * @param <type> $model_name Le nom du modele
      * @param <type> $editors_category la categorie d'editeurs
-     * @return <type> array : un tableau contenant les requetes preparees, sous la forme de filtre LDAP.
+     * @return <type> array[array] : un tableau contenant un tableau de requetes preparees, sous la forme de (filtre LDAP, source, suffic ldap).
      */
+     // MADE pierre ...
     private function getModelEditors($model_name, $editors_category, $dbIndex) {
         $editors_requests = array();
         $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT * FROM v_model_editors WHERE modelname='$model_name' AND category='$editors_category'";
         if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".mysql_error());
+            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysql_error());
             throw new ListTypesNoModelsFoundException("can't make the request (table not found ?)",2);
             exit(1);
         }
         if ($nb_editors = mysql_num_rows($req)) {
             while ($editors = mysql_fetch_assoc($req)) {
-                array_push($editors_requests, $editors['ldapfilter']);
-                $this->log->LogDebug("ListTypes : filtre editeurs ".$editors['ldapfilter']. " pour le modele $model_name");
+				$nuplet = array($editors['ldapfilter'], $editors['data_source'], $editors['ldap_suffix']);
+				
+                array_push($editors_requests, $nuplet);
+                $this->log->LogDebug("ListTypes : filtre editeurs ".$nuplet. " pour le modele $model_name");
             }
             mysql_free_result($req);
         }
@@ -243,7 +255,7 @@ class ListTypes {
         $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT group_filter FROM model,model_subscribers WHERE model_subscribers.id = model.id AND model.modelname = '$model_name'";
         if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".mysql_error());
+            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysql_error());
             throw new ListTypesNoModelsFoundException("can't make the request (table not found ?)",2);
             exit(1);
         }
@@ -270,7 +282,7 @@ class ListTypes {
         $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT count(id_request) AS value FROM prepared_request WHERE id_request=$id_request";
         if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".mysql_error());
+            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysql_error());
             throw new ListTypesNoModelsFoundException("can't make the request (table not found ?)",2);
             exit(1);
         }

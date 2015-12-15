@@ -135,7 +135,7 @@ class SympaPLClient {
         $CMD = self::SYMPA_BIN;
         $CMD_ARGS = "$command $family ".self::ARGUMENT_ROBOT." $robot ".self::ARGUMENT_FICHIER_XML." ".$this->filename;
         //echo "$CMD_PATH$CMD $CMD_ARGS 2>&1";
-        $this->log->LogDebug("SympaPLClient : execution de la commande sympa $CMD_ARGS");
+        $this->log->LogDebug("SympaPLClient : execution de la commande $CMD_PATH$CMD  $CMD_ARGS");
         $start = time();
         //ob_start();
         //echo "$CMD_PATH$CMD $CMD_ARGS 2>&1";

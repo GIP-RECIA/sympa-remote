@@ -176,6 +176,12 @@ class ParamsWrapper {
 		$this->output_params[SympaRemoteConstants::INPUT_LIST_NAME_TO_CLOSE] = $this->input_params[SympaRemoteConstants::INPUT_LIST_NAME_TO_CLOSE];
     }
 
+	private function fillEditorTuple($requestTuple,$tokens){
+		return array(ArgumentFiller::getEscapedFilledString($requestTuple['ldapfilter'],$tokens), 
+					$requestTuple['source'], 
+					ArgumentFiller::getEscapedFilledString($requestTuple['ldapsuffix'], $tokens));
+	}
+
     private function wrapCreateOrUpdateOperation() {
         $this->log->LogDebug("ParamsWrapper : Transformation des parametres pour sympa.pl pour l'operation CREATE ou UPDATE...");
         $output_params = array();
@@ -271,7 +277,11 @@ class ParamsWrapper {
                     // Pour chaque identifiant d'alias, on recupere la requete ldap associee et on la stocke dans le tableau
                     // On creer un tableau dont les identifiants des alias sont les cles du tableau
                     $request=$this->known_list_types->getEditorRequestWithId($id_request, $dbIndex);
-                    $aliases[$id_request]=ArgumentFiller::getEscapedFilledString($request['ldapfilter'],$tokens);
+                   
+					//$aliases[$id_request]=ArgumentFiller::getEscapedFilledString($request['ldapfilter'],$tokens);
+					//MADE pierre 
+					$aliases[$id_request]=$this->fillEditorTuple($request, $tokens);
+					
                 }
             }
         }
@@ -282,7 +292,10 @@ class ParamsWrapper {
         foreach($temp_mandatory_editors_alias as $id_request => $request) {
             // On ajoute tous les editeurs obligatoires qui n'ont pas ete fournis en parametres.
             if (!array_key_exists($id_request, $aliases)) {
-                $aliases[$id_request]=ArgumentFiller::getEscapedFilledString($request['ldapfilter'],$tokens);
+				//MADE pierre 
+					$aliases[$id_request]=$this->fillEditorTuple($request, $tokens);
+                //$aliases[$id_request]=ArgumentFiller::getEscapedFilledString($request['ldapfilter'],$tokens);
+
             }
         }
         if (count($aliases)==0) {
@@ -292,6 +305,7 @@ class ParamsWrapper {
             exit(1);
         }
         $this->output_params[XMLBuilder::XML_TAG_EDITORS_FROM_REQUEST] = $aliases;
+        //TODO pierre  je pense qu'il n'y a rien a faire
         $string="";
         foreach($aliases as $filter) {
 	    $string = $string."\n=>".$filter;
