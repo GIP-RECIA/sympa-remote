@@ -143,7 +143,9 @@ class XMLBuilder {
 				self::insertValueInTag(self::XML_TAG_SOURCE, $source);
 			}
 			if ($suffix != null) {//MADE pierre
-				self::insertValueInTag(self::XML_TAG_SUFFIX, $suffix);
+				// on supprime les , 
+				$tab = explode(",", $suffix); 
+				self::insertValueInTag(self::XML_TAG_SUFFIX, ",".$tab[0]);
 			}
             self::insertEndTag($tagname);
         }  
