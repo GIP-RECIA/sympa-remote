@@ -22,4 +22,18 @@ insert into j_model_request values (12, 5, 'UNCHECKED');
 
 commit;
 
-delete from 
+begin;
+insert into prepared_request values (6, 'Documentation' , '(cn=DOCUMENTATION)', 'ldap_mailFunction_request', 'ENTStructureSIREN={SIREN},ou=structures,dc=esco-centre,dc=fr');
+insert into j_model_request values (1, 6, 'UNCHECKED');
+insert into j_model_request values (2, 6, 'UNCHECKED');
+insert into j_model_request values (3, 6, 'UNCHECKED');
+insert into j_model_request values (4, 6, 'UNCHECKED');
+insert into j_model_request values (5, 6, 'UNCHECKED');
+insert into j_model_request values (6, 6, 'UNCHECKED');
+insert into j_model_request values (7, 6, 'UNCHECKED');
+insert into j_model_request values (8, 6, 'UNCHECKED');
+insert into j_model_request values (9, 6, 'UNCHECKED');
+insert into j_model_request values (10, 6, 'UNCHECKED');
+insert into j_model_request values (11, 6, 'UNCHECKED');
+insert into j_model_request values (12, 6, 'UNCHECKED');
+commit;

@@ -1,5 +1,7 @@
 config/config.inc.php
 *.project
+*.ldif
+*.tgz
 
 INSTALL.txt
 LICENSE.txt
