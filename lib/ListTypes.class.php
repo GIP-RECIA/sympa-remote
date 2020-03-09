@@ -60,19 +60,19 @@ class ListTypes {
         $con = $this->connect_to_db($dbIndex);
         // On recupere les modeles de listes
         $sql = "SELECT * FROM model";
-        if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes: Impossible d'effectuer la requete\n".$sql .mysql_error());
+        if (!$req = mysqli_query($con, $sql)) {
+            $this->log->LogError("ListTypes: Impossible d'effectuer la requete\n".$sql .mysqli_error());
             throw new ListTypesNoModelsFoundException("can't make the request (table not found ?)",2);
             exit(1);
         }
-        if ($nb_models = mysql_num_rows($req)) {
-            while ($data = mysql_fetch_assoc($req)) {
+        if ($nb_models = mysqli_num_rows($req)) {
+            while ($data = mysqli_fetch_assoc($req)) {
                 $this->modeles[$data['modelname']]=$data;
                 $this->log->LogDebug("ListTypes : Chargement du modele ".$data['modelname']);
             }
-            mysql_free_result($req);
+            mysqli_free_result($req);
         }
-        mysql_close($con);
+        mysqli_close($con);
         if ($nb_models == 0) {
             $this->log->LogError("ListTypes : Aucun type de liste connu");
             throw new ListTypesNoModelsFoundException("no models can be found",1);
@@ -134,13 +134,13 @@ class ListTypes {
 		$db = Config::get_array_value($this->config->db_db, $dbIndex);
 		$this->log->LogDebug("ListTypes : database connexion informations are: host: $host ; user: $user ; db: $db");
         
-        $con = mysql_connect($host, $user, $pass);
+        $con = mysqli_connect($host, $user, $pass);
         if ($con == false) {
-            $this->log->LogError("ListTypes : Impossible de se connecter a la base des modeles de listes ".mysql_error());
+            $this->log->LogError("ListTypes : Impossible de se connecter a la base des modeles de listes ".mysqli_error());
             throw new ListTypesNoModelsFoundException("can't connect to database",2);
             exit(1);
         }
-        if (!mysql_select_db($db, $con)) {
+        if (!mysqli_select_db($con, $db)) {
             $this->log->LogError("ListTypes : Impossible de trouver la base ".$db);
             throw new ListTypesNoModelsFoundException("No database ".$db, 2);
             exit(1);
@@ -158,21 +158,21 @@ class ListTypes {
         $the_request = array();
         $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT display_name, ldapfilter, data_source, ldap_suffix FROM prepared_request WHERE id_request=$id_request";
-        if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysql_error());
+        if (!$req = mysqli_query($con, $sql)) {
+            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysqli_error());
             throw new ListTypesSQLException("can't make the request (table not found ?)",2);
             exit(1);
         }
-        if ($nb_req = mysql_num_rows($req)) {
-            $prepared_request = mysql_fetch_assoc($req);
+        if ($nb_req = mysqli_num_rows($req)) {
+            $prepared_request = mysqli_fetch_assoc($req);
             $the_request['display_name']=$prepared_request['display_name'];
             $the_request['ldapfilter']=$prepared_request['ldapfilter'];
              $the_request['source']=$prepared_request['data_source'];
             $the_request['ldapsuffix']=$prepared_request['ldap_suffix'];
             $this->log->LogDebug("ListTypes : requete editeur avec id $id_request trouvee : ".implode("/",$the_request));
-            mysql_free_result($req);
+            mysqli_free_result($req);
         }
-        mysql_close($con);
+        mysqli_close($con);
         return $the_request;
     }
 
@@ -187,13 +187,13 @@ class ListTypes {
         $requests = array();
         $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT id_request, display_name, ldapfilter, data_source, ldap_suffix  FROM v_model_editors WHERE modelname='$model_name' AND category='MANDATORY'";
-        if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysql_error());
+        if (!$req = mysqli_query($con, $sql)) {
+            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysqli_error());
             throw new ListTypesSQLException("can't make the request (table not found ?)",2);
             exit(1);
         }
-        if ($nb_req = mysql_num_rows($req)) {
-            while ($prepared_requests = mysql_fetch_assoc($req)) {
+        if ($nb_req = mysqli_num_rows($req)) {
+            while ($prepared_requests = mysqli_fetch_assoc($req)) {
                 $id_request=$prepared_requests['id_request'];
                 $requests[$id_request]=array();
                 $requests[$id_request]['display_name']=$prepared_requests['display_name'];
@@ -202,12 +202,12 @@ class ListTypes {
 				$requests[$id_request]['ldapsuffix']=$prepared_requests['ldap_suffix'];
                 $this->log->LogDebug("ListTypes : filtre d'editeurs obligatoires : ".implode("/",$requests[$id_request]));
             }
-            mysql_free_result($req);
+            mysqli_free_result($req);
         }
         else {
             $this->log->LogDebug("ListTypes : Aucun editeur obligatoire trouve pour le modele $model_name");
         }
-        mysql_close($con);
+        mysqli_close($con);
         return $requests;
     }
 
@@ -225,21 +225,21 @@ class ListTypes {
         $editors_requests = array();
         $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT * FROM v_model_editors WHERE modelname='$model_name' AND category='$editors_category'";
-        if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysql_error());
+        if (!$req = mysqli_query($con, $sql)) {
+            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysqli_error());
             throw new ListTypesNoModelsFoundException("can't make the request (table not found ?)",2);
             exit(1);
         }
-        if ($nb_editors = mysql_num_rows($req)) {
-            while ($editors = mysql_fetch_assoc($req)) {
+        if ($nb_editors = mysqli_num_rows($req)) {
+            while ($editors = mysqli_fetch_assoc($req)) {
 				$nuplet = array($editors['ldapfilter'], $editors['data_source'], $editors['ldap_suffix']);
 				
                 array_push($editors_requests, $nuplet);
                 $this->log->LogDebug("ListTypes : filtre editeurs ".$nuplet. " pour le modele $model_name");
             }
-            mysql_free_result($req);
+            mysqli_free_result($req);
         }
-        mysql_close($con);
+        mysqli_close($con);
         return $editors_requests;
     }
 
@@ -254,19 +254,19 @@ class ListTypes {
         $group = false;
         $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT group_filter FROM model,model_subscribers WHERE model_subscribers.id = model.id AND model.modelname = '$model_name'";
-        if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysql_error());
+        if (!$req = mysqli_query($con, $sql)) {
+            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysqli_error());
             throw new ListTypesNoModelsFoundException("can't make the request (table not found ?)",2);
             exit(1);
         }
-        if ($nb_groupfilters = mysql_num_rows($req)) {
-            while ($groupfilter = mysql_fetch_assoc($req)) {
+        if ($nb_groupfilters = mysqli_num_rows($req)) {
+            while ($groupfilter = mysqli_fetch_assoc($req)) {
                 $group = $groupfilter['group_filter'];
                 $this->log->LogDebug("ListTypes : filtre abonnes ".$groupfilter['group_filter']. " pour le modele $model_name");
             }
-            mysql_free_result($req);
+            mysqli_free_result($req);
         }
-        mysql_close($con);
+        mysqli_close($con);
         // On ne retourne que le premier car sympa n'en supporte qu'un
         return $group;
     }
@@ -281,18 +281,18 @@ class ListTypes {
         $exists = false;
         $con = $this->connect_to_db($dbIndex);
         $sql = "SELECT count(id_request) AS value FROM prepared_request WHERE id_request=$id_request";
-        if (!$req = mysql_query($sql,$con)) {
-            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysql_error());
+        if (!$req = mysqli_query($con, $sql)) {
+            $this->log->LogError("ListTypes : Impossible d'effectuer la requete\n".$sql .mysqli_error());
             throw new ListTypesNoModelsFoundException("can't make the request (table not found ?)",2);
             exit(1);
         }
-        $res = mysql_fetch_assoc($req);
+        $res = mysqli_fetch_assoc($req);
         if ($res['value'] == 1) {
             $exists = true;
             $this->log->LogDebug("ListTypes : la request preparee $id_request existe");
         }
-        mysql_free_result($req);
-        mysql_close($con);
+        mysqli_free_result($req);
+        mysqli_close($con);
         return $exists;
     }
 
