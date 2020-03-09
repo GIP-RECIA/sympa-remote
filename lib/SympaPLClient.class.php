@@ -89,6 +89,23 @@ class SympaPLClient {
     }
 
     /**
+     * Renomme une  une liste.
+     * @param <type> $listname le nom de la liste
+     */
+    private function renameList($listname, $robot) {
+		$CMD_PATH = $this->config->sympa_bin_dir;
+		$CMD = self::SYMPA_BIN;
+		$date = date('.Y.m.d.H.i.s');
+        $CMD_ARGS = "--rename_list $listname@$robot --new_listname=$listname$date --new_listrobot=$robot";
+        $this->log->LogDebug("SympaPLClient : execution de la commande de renommage $CMD_ARGS");
+        $start = time();
+        exec("$CMD_PATH$CMD $CMD_ARGS 2>&1", $output, $returnVal);
+        $end = time();
+        $duration = $end-$start;
+        $this->log->LogDebug("SympaPLClient : duree = $duration secondes return $returnVal");
+        return !$returnVal;
+    }
+    /**
      * Ferme une liste.
      * @param <type> $listname le nom de la liste
      */
@@ -101,12 +118,15 @@ class SympaPLClient {
         $start = time();
         //ob_start();
         //echo "$CMD_PATH$CMD $CMD_ARGS 2>&1";
-        exec("$CMD_PATH$CMD $CMD_ARGS 2>&1", $output);
+        exec("$CMD_PATH$CMD $CMD_ARGS 2>&1", $output, $returnVal);
         $end = time();
         $duration = $end-$start;
-        $this->log->LogDebug("SympaPLClient : duree = $duration secondes");
-        $this->analyzeCloseOutput($output);
-
+        $this->log->LogDebug("SympaPLClient : duree = $duration secondes, $returnVal");
+        $this->analyzeCloseOutput($output, $returnVal);
+	if (!$returnVal) {
+		list($listname, $robot) =  explode("@", $listname);
+		$this->renameList($listname,$robot);
+	}
     }
 
     /**
@@ -139,11 +159,11 @@ class SympaPLClient {
         $start = time();
         //ob_start();
         //echo "$CMD_PATH$CMD $CMD_ARGS 2>&1";
-        exec("$CMD_PATH$CMD $CMD_ARGS 2>&1", $output);
+        exec("$CMD_PATH$CMD $CMD_ARGS 2>&1", $output, $returnVal);
         $end = time();
         $duration = $end-$start;
-        $this->log->LogDebug("SympaPLClient : duree = $duration secondes");
-        $this->analyzeOutput($output, $allowUpdate);
+        $this->log->LogDebug("SympaPLClient : duree = $duration secondes; returnVal = $returnVal");
+        $this->analyzeOutput($output, $allowUpdate, $returnVal);
     }
 
     /**
@@ -188,9 +208,10 @@ class SympaPLClient {
      * @param <type> $output la sortie de la commande
      * @param <type> $allowUpdate if true analyze the output of a sympa update
      */
-    private function analyzeOutput($output, $allowUpdate) {
+    private function analyzeOutput($output, $allowUpdate, $returnVal) {
         $return = self::CODE_OK;
-        if (!is_array($output)) {
+	if (!$returnVal) return $return;
+        if ( !is_array($output) ) {
             $this->log->LogWarn("SympaPLClient : une creation de liste a echouee (output non tableau)");
             throw new SympaPLClientListCreationFailedException("ERROR_CREATING_LIST",1);
             exit(1);
@@ -239,7 +260,8 @@ class SympaPLClient {
      * en fonction de la sortie recuperee
      * @param <type> $output la sortie de la commande
      */
-    private function analyzeCloseOutput($output) {
+    private function analyzeCloseOutput($output, $returnVall) {
+	if (!$returnVal) return ;
         if (!is_array($output)) {
             $this->log->LogWarn("SympaPLClient : une fermeture de liste a echouee (output non tableau)");
             throw new PhpException("ERROR_CLOSING_LIST",1);
