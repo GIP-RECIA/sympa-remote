@@ -117,7 +117,7 @@ class SympaPLClient {
         //$filename = UniqueFilenameBuilder::getUniqueName().".xml";
         $this->filename = tempnam("/tmp", "sympaRemote_");
         $file = fopen($this->filename, "w");
-        fwrite($file, $xml_content);
+        fwrite($file, utf8_encode($xml_content));
         fclose($file);
         $this->log->LogDebug("SympaPLClient : creation du fichier xml temporaire $this->filename OK");
     }
