@@ -95,8 +95,15 @@ class SympaPLClient {
     private function renameList($listname, $robot) {
 		$CMD_PATH = $this->config->sympa_bin_dir;
 		$CMD = self::SYMPA_BIN;
+		if (strlen ($listname) > 30 ) {
+	       $date= date('.Y.m.d');
+	       $newName = substr($listname, 0, 39) . $date;
+        } else {
+	       $date= date('.Y.m.d.H.i.s');
+	       $newName = $listname . $date;
+        }
 		$date = date('.Y.m.d.H.i.s');
-        $CMD_ARGS = "--rename_list $listname@$robot --new_listname=$listname$date --new_listrobot=$robot";
+        $CMD_ARGS = "--rename_list $listname@$robot --new_listname=$newName --new_listrobot=$robot";
         $this->log->LogDebug("SympaPLClient : execution de la commande de renommage $CMD_ARGS");
         $start = time();
         exec("$CMD_PATH$CMD $CMD_ARGS 2>&1", $output, $returnVal);
