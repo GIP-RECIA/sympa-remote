@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<list>
+	<listname>profs2DE_6</listname>
+	<subject>Tous les profs de la classe 2DE 6</subject>
+	<topics>computing</topics>
+	<description>Profs de la classe 2DE 6</description>
+		<owners_group multiple="1">
+			<groupname>esco:admin:Listes_Diffusion:local:ROLLINAT_0360002G</groupname>
+		</owners_group>
+	<editors_from_request multiple="1">
+		<request>(ismemberof=*:Etablissements:*_0360002G:Administratifs:DIRECTION)</request>
+	</editors_from_request>
+	<editors_from_request multiple="1">
+		<request>(ismemberof=*:Etablissements:*_0360002G:Profs)</request>
+	</editors_from_request>
+	<subscribers_group>esco:Etablissements:ROLLINAT_0360002G:SECONDE GENERALE et TECHNO YC BT:Profs_2DE 6</subscribers_group>
+	<scenario_send>newsletter</scenario_send>
+</list>
+
