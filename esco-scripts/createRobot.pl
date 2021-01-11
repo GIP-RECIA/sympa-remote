@@ -5,6 +5,9 @@
 # Add the alias in the postfix aliases file.
 # Write de robot.conf file.
 
+#example
+#./createRobot.pl 0180592w.list.chercan.fr
+
 
 # Configuration
 $sympa_home = "/home/sympa";

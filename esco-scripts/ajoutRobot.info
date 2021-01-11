@@ -1,0 +1,24 @@
+
+Ajouter un robot
+
+Le script perl /home/sympa/scripts/createRobot.pl permet la création de robot via le nom de domaine complet du robot. Ce script doit donc être appelé en passant en paramètre le nom de domaine complet du futur robot. Exemple : /home/sympa/scripts/createRobot.pl 0450822x.list.netocentre.fr
+
+Ce script procède étape par étape :
+
+    Création des répertoires du robot dans sympa/etc/robot_domain_name/ (configuration du robot) et sympa/list_data/robot_domain_name/ (conteneur des listes du robot)
+    Ajout d'un alias dans le fichier d'alias du MTA (pour le moment /etc/aliases)
+    Recharge les aliases au moyen de la commande "newaliases"
+    Création du fichier de configuration du robot robot.conf dans sympa/etc/robot_domain_name/
+
+A la fin, un rapport est produit indiquant les actions complétées par le script. A tout moment, si une action échoue, le script peut être relancé sans risque pour compléter les étapes qui étaient en erreur précédemment.
+
+L'ajout de robots nécessite le redémarrage du daemon Sympa, ainsi que du serveur qui héberge l'interface web de Sympa.
+Créer de multiples robots rapidement
+
+Le script bash /home/sympa/scripts/createMultipleRobots.sh permet de boucler sommairement sur un fichier pour créer un robot par ligne de fichier, avec comme nom de domaine de chaque robot le contenu de la ligne du fichier. Ce script est très efficace pour par exemple créer les robots des 20 nouveaux établissements.
+
+Le script prend un fichier en paramètre et est capable de concaténer chaque ligne du fichier lu avec une chaîne de caractères à configurer dans le script :
+
+    /home/sympa/scripts/createMultipleRobots.sh listUAI.txt
+
+Avec listUAI.txt contenant 1 UAI par ligne, et la variable after dans le script configuré à .list.netocentre.fr par exemple. 
