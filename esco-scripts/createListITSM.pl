@@ -183,16 +183,21 @@ format ALL =
 <description>Liste d'information du GIP vers les Correspondant Support Locaux de tous les &#xE9;tablissements</description>
 <language>fr</language>
 <owner multiple="1">
-        <email>chloe.fonck@recia.fr</email>
+	<email>chloe.fonck@*</email>
+$recia
 </owner>
 <owner multiple="1">
-        <email>nicolas.lebrun@recia.fr</email>
+	<email>nicolas.lebrun@*</email>
+$recia
 </owner>
 <owner multiple="1">
-        <email>xavier.le-ho@recia.fr</email>
+	<email>xavier.le-ho@*</email>
+$recia
 </owner>
-<editors_from_group multiple="1">coll:Collectivites:GIP-RECIA:PERSONNELS:GSI</editors_from_group>
-
+<editors_from_group multiple="1">
+	<groupname>@*</groupname>
+$group_gsi
+</editors_from_group>
 <subscribers_group>*:admin:ITSM:*user:*</subscribers_group>
 
 </list>
