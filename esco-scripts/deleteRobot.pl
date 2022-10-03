@@ -166,7 +166,7 @@ if ($aliasDeleted) {
 	print "* alias not found in $aliases_file.\n";
 }
 
-system($newaliases);
+system($newAliases);
 
 if (!$listDataDirDeletion && !$robotConfDirDeletion && !$aliasDeleted) {
 	print "Sympa robot [$robotName] wasn't deleted !\n";
