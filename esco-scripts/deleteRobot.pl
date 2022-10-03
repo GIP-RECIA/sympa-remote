@@ -11,6 +11,8 @@ $sympa_home = "/home/sympa";
 $aliases_file = "$sympa_home/etc/sympa_aliases";
 #$aliases_file = "/home/max/sources/sympaRobots/aliases";
 
+$newAliases = "/usr/sbin/postalias $aliases_file";
+
 # Direcotry deletion
 sub deleteDir {
 	$dir = $_[0];
@@ -164,7 +166,7 @@ if ($aliasDeleted) {
 	print "* alias not found in $aliases_file.\n";
 }
 
-system("newaliases");
+system($newaliases);
 
 if (!$listDataDirDeletion && !$robotConfDirDeletion && !$aliasDeleted) {
 	print "Sympa robot [$robotName] wasn't deleted !\n";
