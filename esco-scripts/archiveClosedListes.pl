@@ -5,7 +5,7 @@
 
 # mysql -h condor -u sympa_c_g -p -D sympa_coucou_grue < closeList.sql > closeList.list
 # ou pour un etablissement:
-# mysql -h condor -u sympa_c_g -p -D sympa_coucou_grue < closeListEtab.sql | archiveClosedListes.pl
+# mysql -h condor -u sympa_c_g -p -D sympa_coucou_grue < closeListEtab.sql | ./archiveClosedListes.pl
 
 
 @date = localtime(time); 

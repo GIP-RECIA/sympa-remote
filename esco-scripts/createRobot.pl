@@ -119,8 +119,8 @@ if (! -f $robotConfFile) {
 	#$robotConfFileCreation = print ROBOT_CONF "listmaster \t$listmaster\n";
 	$robotConfFileCreation = print ROBOT_CONF "host    \t$robotName\n";
 	$robotConfFileCreation &&= print ROBOT_CONF "http_host \t$robotName\n";
-	$robotConfFileCreation &&= print ROBOT_CONF "wwsympa_url \thttp://$robotName/sympa\n";
-	$robotConfFileCreation &&= print ROBOT_CONF "soap_url \thttp://$robotName/sympasoap\n";
+	$robotConfFileCreation &&= print ROBOT_CONF "wwsympa_url \thttps://$robotName/sympa\n";
+	$robotConfFileCreation &&= print ROBOT_CONF "soap_url \thttps://$robotName/sympasoap\n";
 	$robotConfFileCreation &&= print ROBOT_CONF "email   \t$sympa_user\n";
 	$robotConfFileCreation &&= close (ROBOT_CONF);
 
